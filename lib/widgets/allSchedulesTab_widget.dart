@@ -1,12 +1,9 @@
 import 'package:agendei/widgets/schedule_tile.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class AllSchedulesTabWidget extends StatefulWidget {
-  final String uidCompany;
-
-  AllSchedulesTabWidget({this.uidCompany, Key key}) : super(key: key);
-
   @override
   _AllSchedulesTabWidgetState createState() => _AllSchedulesTabWidgetState();
 }
@@ -14,11 +11,15 @@ class AllSchedulesTabWidget extends StatefulWidget {
 class _AllSchedulesTabWidgetState extends State<AllSchedulesTabWidget> {
   List<DocumentSnapshot> allOrdersList = List<DocumentSnapshot>();
 
+
+
+
   Future<List<DocumentSnapshot>> getCalendarsOrders() async {
+    final FirebaseUser user = await FirebaseAuth.instance.currentUser();
     List<DocumentSnapshot> allOrders = List<DocumentSnapshot>();
     QuerySnapshot calendars = await Firestore.instance
         .collection('companies')
-        .document(widget.uidCompany)
+        .document(user.uid)
         .collection('calendars')
         .getDocuments();
     List<DocumentSnapshot> calendarsList = calendars.documents;
@@ -27,7 +28,7 @@ class _AllSchedulesTabWidgetState extends State<AllSchedulesTabWidget> {
       print(calendarsList[index].documentID);
       QuerySnapshot orders = await Firestore.instance
           .collection('companies')
-          .document(widget.uidCompany)
+          .document(user.uid)
           .collection('calendars')
           .document(calendarsList[index].documentID)
           .collection('orders').where('statusSchedule', isEqualTo: 'agendado')

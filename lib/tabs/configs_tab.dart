@@ -14,11 +14,13 @@ class _ConfigsTabState extends State<ConfigsTab> {
   final _loginBloc = LoginBloc();
   FirebaseAuth auth = FirebaseAuth.instance;
   Future<DocumentSnapshot> snapshot;
-
+  DocumentSnapshot company;
   String uidCompany;
 
   getUID() async {
     final FirebaseUser user = await FirebaseAuth.instance.currentUser();
+    company = await Firestore.instance.collection('companies').document(user.uid).get();
+    print(company.documentID.toString());
     final uidCompany = user.uid.toString();
     return uidCompany;
   }
@@ -37,7 +39,7 @@ class _ConfigsTabState extends State<ConfigsTab> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.grey[850],
-      appBar: CustomAppBar(),
+      appBar: CustomAppBar(company),
       body: FutureBuilder<DocumentSnapshot>(
           future: Firestore.instance
               .collection('companies')
@@ -201,15 +203,17 @@ class _ConfigsTabState extends State<ConfigsTab> {
 }
 
 class CustomAppBar extends StatelessWidget with PreferredSizeWidget {
+  final DocumentSnapshot company;
+  CustomAppBar(this.company);
   @override
-  Size get preferredSize => Size(double.infinity, 300);
+  Size get preferredSize => Size(double.infinity, 400);
 
   @override
   Widget build(BuildContext context) {
     return ClipPath(
       clipper: MyClipper(),
       child: Container(
-        padding: EdgeInsets.only(top: 10),
+        padding: EdgeInsets.only(top: 40),
         decoration: BoxDecoration(color: Colors.blueAccent, boxShadow: [
           BoxShadow(color: Colors.black, blurRadius: 0, offset: Offset(0, 0))
         ]),
@@ -218,13 +222,6 @@ class CustomAppBar extends StatelessWidget with PreferredSizeWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
-//                IconButton(
-//                  icon: Icon(Icons.menu, color: Colors.white,),
-//                  onPressed: () {
-//                    print('entrou');
-//                  },
-//                ),
-
                 Text(
                   "Visão geral",
                   style: TextStyle(
@@ -234,50 +231,42 @@ class CustomAppBar extends StatelessWidget with PreferredSizeWidget {
                 ),
               ],
             ),
-//
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: <Widget>[
                 Column(
                   children: <Widget>[
+                    SizedBox(
+                      height: 40,
+                    ),
                     Container(
-                      alignment: Alignment.center,
-                      width: 100,
-                      height: 100,
+                      alignment: Alignment.centerLeft,
+                      width: 140,
+                      height: 140,
                       decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           image: DecorationImage(
                             fit: BoxFit.cover,
-                            image: NetworkImage('google.com.br'),
+                            image: NetworkImage(company.data['img']),
                           )),
                     ),
                     SizedBox(
-                      height: 10,
+                      height: 20,
                     ),
                     Text(
-                      "Nome da empresa",
-                      style: TextStyle(color: Colors.white, fontSize: 20),
+                      company.data['name'],
+                      style: TextStyle(color: Colors.white, fontSize: 18),
                     ),
-//                    Text("email", style: TextStyle(
-//                        color: Colors.white,
-//                        fontSize: 15
-//                    ),),
-//
-//                    Text("telefone", style: TextStyle(
-//                        color: Colors.white,
-//                        fontSize: 15
-//                    ),),
                   ],
                 ),
                 Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: <Widget>[
                     Icon(
                       Icons.people,
                       color: Colors.white,
                     ),
-//                    Text("Clientes", style: TextStyle(
-//                        color: Colors.white
-//                    ),),
+
                     Text(
                       "12",
                       style: TextStyle(fontSize: 26, color: Colors.white),
@@ -286,9 +275,6 @@ class CustomAppBar extends StatelessWidget with PreferredSizeWidget {
                 ),
                 Column(
                   children: <Widget>[
-//                    Text("Agendamentos", style: TextStyle(
-//                        color: Colors.white
-//                    ),),
                     Icon(
                       Icons.calendar_today,
                       color: Colors.white,
@@ -301,9 +287,6 @@ class CustomAppBar extends StatelessWidget with PreferredSizeWidget {
                 ),
                 Column(
                   children: <Widget>[
-//                    Text("Routines", style: TextStyle(
-//                        color: Colors.white
-//                    ),),
                     Icon(
                       Icons.person,
                       color: Colors.white,
@@ -321,9 +304,6 @@ class CustomAppBar extends StatelessWidget with PreferredSizeWidget {
               children: <Widget>[
                 Column(
                   children: <Widget>[
-//                    Text("Savings", style: TextStyle(
-//                        color: Colors.white
-//                    ),),
                     Icon(
                       Icons.list,
                       color: Colors.white,
@@ -339,10 +319,6 @@ class CustomAppBar extends StatelessWidget with PreferredSizeWidget {
                 ),
                 Column(
                   children: <Widget>[
-//                    Text("July Goals",
-//                      style: TextStyle(
-//                          color: Colors.white
-//                      ),),
                     Icon(
                       Icons.attach_money,
                       color: Colors.white,
@@ -355,9 +331,6 @@ class CustomAppBar extends StatelessWidget with PreferredSizeWidget {
                   width: 16,
                 )
               ],
-            ),
-            SizedBox(
-              height: 8,
             ),
           ],
         ),

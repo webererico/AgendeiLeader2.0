@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 // Example holidays
 final Map<DateTime, List> _holidays = {
@@ -12,8 +13,6 @@ final Map<DateTime, List> _holidays = {
 };
 
 class CalendarTabWidget extends StatefulWidget {
-  final String uidCompany;
-  CalendarTabWidget({this.uidCompany, Key key}) : super(key: key);
   @override
   _CalendarTabWidgetState createState() => _CalendarTabWidgetState();
 }
@@ -24,13 +23,15 @@ class _CalendarTabWidgetState extends State<CalendarTabWidget>
   List _selectedEvents;
   AnimationController _animationController;
   CalendarController _calendarController;
+  final _selectedDay = DateTime.now();
   List<DocumentSnapshot> allOrdersList = List<DocumentSnapshot>();
 
   Future<List<DocumentSnapshot>> getCalendarsOrders() async {
+    final FirebaseUser user = await FirebaseAuth.instance.currentUser();
     List<DocumentSnapshot> allOrders = List<DocumentSnapshot>();
     QuerySnapshot calendars = await Firestore.instance
         .collection('companies')
-        .document(widget.uidCompany)
+        .document(user.uid)
         .collection('calendars')
         .getDocuments();
     List<DocumentSnapshot> calendarsList = calendars.documents;
@@ -39,7 +40,7 @@ class _CalendarTabWidgetState extends State<CalendarTabWidget>
       print(calendarsList[index].documentID);
       QuerySnapshot orders = await Firestore.instance
           .collection('companies')
-          .document(widget.uidCompany)
+          .document(user.uid)
           .collection('calendars')
           .document(calendarsList[index].documentID)
           .collection('orders')
@@ -57,18 +58,30 @@ class _CalendarTabWidgetState extends State<CalendarTabWidget>
     }
     return allOrders;
   }
+  calculateTime(){
+    for(int index = 0; index < allOrdersList.length; index++ ){
+      Timestamp date = allOrdersList[index].data['dateTime'];
+      DateTime orderDate = date.toDate();
+      print('dia: '+orderDate.day.toString());
+      int day = _selectedDay.day - orderDate.day;
+
+
+    }
+  }
 
 
   @override
   void initState() {
     super.initState();
-    print('uidCompany: ' + widget.uidCompany);
+
     getCalendarsOrders().then((result) {
       setState(() {
         allOrdersList = result;
+        calculateTime();
       });
     });
-    final _selectedDay = DateTime.now();
+    calculateTime();
+
 
     _events = {
       _selectedDay.subtract(Duration(days: 30)): [

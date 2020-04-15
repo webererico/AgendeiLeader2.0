@@ -1,30 +1,35 @@
+import 'package:agendei/widgets/clients_tile.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
-class UsersTab extends StatefulWidget {
+class ClientsTab extends StatefulWidget {
+  final String uidCompany;
+
+  ClientsTab({this.uidCompany, Key key}) : super(key: key);
+
   @override
-  _UsersTabState createState() => _UsersTabState();
+  _ClientsTabState createState() => _ClientsTabState();
 }
 
-class _UsersTabState extends State<UsersTab> {
-  String uidCompany;
+class _ClientsTabState extends State<ClientsTab> {
+//  String uidCompany;
 
-  getUID() async {
-    final FirebaseUser user = await FirebaseAuth.instance.currentUser();
-    final uidCompany = user.uid.toString();
-    return uidCompany;
-  }
+//  getUID() async {
+//    final FirebaseUser user = await FirebaseAuth.instance.currentUser();
+//    final uidCompany = user.uid.toString();
+//    print('uidCompany: '+ uidCompany);
+//    return uidCompany;
+//  }
 
   @override
   void initState() {
-    getUID().then((results) {
-      setState(() {
-        uidCompany = results;
-        print('uidCompany: ' + uidCompany);
-      });
-    });
     super.initState();
+    print(widget.uidCompany);
+//    getUID().then((results) {
+//      setState(() {
+//        uidCompany = results;
+//      });
+//    });
   }
 
   @override
@@ -34,13 +39,14 @@ class _UsersTabState extends State<UsersTab> {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
           child: TextField(
-            style: TextStyle(color: Colors.white),
+            style: TextStyle(color: Colors.black),
             decoration: InputDecoration(
+              fillColor: Colors.grey,
               hintText: 'Pesquisar cliente',
-              hintStyle: TextStyle(color: Colors.white),
+              hintStyle: TextStyle(color: Colors.black),
               icon: Icon(
                 Icons.search,
-                color: Colors.white,
+                color: Colors.black,
               ),
               border: InputBorder.none,
             ),
@@ -49,8 +55,8 @@ class _UsersTabState extends State<UsersTab> {
         FutureBuilder<QuerySnapshot>(
             future: Firestore.instance
                 .collection('companies')
-                .document(uidCompany)
-                .collection('clients')
+                .document(widget.uidCompany)
+                .collection('clientes')
                 .getDocuments(),
             builder: (context, snapshot) {
               if (!snapshot.hasData) {
@@ -60,91 +66,18 @@ class _UsersTabState extends State<UsersTab> {
                   ),
                 );
               } else {
-                for (int i = 0; i < snapshot.data.documents.length; i++) {
-                  print(snapshot.data.documents[i].documentID);
-                  return Card(
-                    elevation: 2.0,
-                    margin: EdgeInsets.all(15.0),
-                    child: Container(
-                      padding: EdgeInsets.all(10),
-                      decoration: BoxDecoration(
-                          color: Color.fromRGBO(30, 100, 200, .9)),
-                      child: Row(
-                        children: <Widget>[
-                          Flexible(
-                              flex: 3,
-                              child: FutureBuilder(
-                                  future: Firestore.instance
-                                      .collection('users')
-                                      .document(
-                                          snapshot.data.documents[i].documentID)
-                                      .get(),
-                                  builder: (context, snap) {
-                                    if (!snap.hasData) return Container();
-                                    return CircleAvatar(
-                                      radius: 40,
-                                      backgroundImage: snap.data['img'] == null
-                                          ? Icon(Icons.person)
-                                          : NetworkImage(
-                                              snap.data['img'],
-                                            ),
-                                      backgroundColor:
-                                          Colors.white.withAlpha(100),
-                                    );
-                                  })),
-                          SizedBox(
-                            width: 10,
-                          ),
-                          Flexible(
-                              flex: 8,
-                              child: FutureBuilder(
-                                  future: Firestore.instance
-                                      .collection('users')
-                                      .document(
-                                          snapshot.data.documents[i].documentID)
-                                      .get(),
-                                  builder: (context, snap) {
-                                    if (!snap.hasData) return Container();
-                                    return Column(
-                                      children: <Widget>[
-                                        Row(
-                                          children: <Widget>[
-                                            Text(
-                                              snap.data['name'] ,
-                                              style: TextStyle(
-                                                  color: Colors.white),
-                                            ),
-                                            snap.data['lastName'] != null
-                                                ? Text(
-                                                    snap.data['lastName'],
-                                                    style: TextStyle(
-                                                        color: Colors.white),
-                                                  )
-                                                : Container(),
-                                          ],
-                                        ),
-                                        SizedBox(
-                                          height: 10,
-                                        ),
-                                        Row(
-                                          mainAxisAlignment: MainAxisAlignment.center,
-                                          children: <Widget>[
-                                            Text(
-                                              snap.data['phone'],
-                                              style: TextStyle(
-                                                  color: Colors.white),
-                                            ),
-                                          ],
-                                        ),
-                                      ],
-                                    );
-                                  })),
-                        ],
-                      ),
-                    ),
-                  );
-                }
-                return Container();
+                print('quantidade de clientes: ' +
+                    snapshot.data.documents.length.toString());
+                return ListView.builder(
+                  scrollDirection: Axis.vertical,
+                  shrinkWrap: true,
+                  itemCount: snapshot.data.documents.length,
+                  itemBuilder: (context, index) {
+                    return ClientsTile(
+                      client: snapshot.data.documents[index],
+                    );
+                  },
+                );
               }
             }),
       ],

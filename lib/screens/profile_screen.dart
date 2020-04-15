@@ -66,17 +66,34 @@ class _ProfileScreenState extends State<ProfileScreen> with ProfileValidators {
 
   getUID() async {
     final FirebaseUser user = await FirebaseAuth.instance.currentUser();
+    DocumentSnapshot documentSnapshot = await Firestore.instance.collection('companies').document(user.uid).get();
+    setState(() {
+      setState(() {
+         selectedCategory = documentSnapshot.data['uidCategory'];
+      });
+    });
+    print(selectedCategory);
+    QuerySnapshot categories = await Firestore.instance.collection('categories').getDocuments();
+    for(int index = 0; index <categories.documents.length; index++){
+      categoryNames.add(DropdownMenuItem(
+        child: Text(
+          categories.documents[index].data['name'],
+        ),
+        value: '${categories.documents[index].documentID}',
+      ));
+    }
+
     final uidCompany = user.uid.toString();
     return uidCompany;
   }
 
-  checkCategory() async {
-    final DocumentSnapshot company = await Firestore.instance
-        .collection('companies')
-        .document(uidCompany)
-        .get();
-    return company.data['uidCategory'].toString();
-  }
+//  checkCategory() async {
+//    final DocumentSnapshot company = await Firestore.instance
+//        .collection('companies')
+//        .document(uidCompany)
+//        .get();
+//    return company.data['uidCategory'].toString();
+//  }
 
   @override
   void initState() {
@@ -85,12 +102,6 @@ class _ProfileScreenState extends State<ProfileScreen> with ProfileValidators {
         uidCompany = results;
       });
     });
-    checkCategory().then((results) {
-      setState(() {
-        selectedCategory = results;
-      });
-    });
-    print(selectedCategory);
     super.initState();
   }
 
@@ -320,6 +331,9 @@ class _ProfileScreenState extends State<ProfileScreen> with ProfileValidators {
                               _profileBloc.saveUidCategory(value);
                             },
                             value: selectedCategory,
+                            dropdownColor: Colors.blueAccent,
+                            focusColor: Colors.white,
+                            style: TextStyle(color: Colors.white),
                             isExpanded: false,
                             hint: Text(
                               'Escola a categoria',
