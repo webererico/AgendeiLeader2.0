@@ -247,14 +247,14 @@ class CustomAppBar extends StatelessWidget with PreferredSizeWidget {
                           shape: BoxShape.circle,
                           image: DecorationImage(
                             fit: BoxFit.cover,
-                            image: NetworkImage(company.data['img']),
+                            image: company.data['img']== null ? Icons.image : NetworkImage(company.data['img']) ,
                           )),
                     ),
                     SizedBox(
                       height: 20,
                     ),
                     Text(
-                      company.data['name'],
+                      company.data['name'] == null ? '' : company.data['name'],
                       style: TextStyle(color: Colors.white, fontSize: 18),
                     ),
                   ],

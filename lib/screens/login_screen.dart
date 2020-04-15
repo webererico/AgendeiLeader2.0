@@ -4,6 +4,7 @@ import 'package:agendei/screens/newProfile_screen.dart';
 import 'package:agendei/widgets/input_field.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 //import 'package:url_launcher/url_launcher.dart';
 
 
@@ -21,15 +22,14 @@ class _LoginScreen extends State<LoginScreen> {
 
 
 
-//
-//  _launchURL() async {
-//    const url = 'https://flutter.dev';
-//    if (await canLaunch(url)) {
-//      await launch(url);
-//    } else {
-//      throw 'Could not launch $url';
-//    }
-//  }
+  _launchURL() async {
+    const url = 'https://www.google.com.br/';
+    if (await canLaunch(url)) {
+      await launch(url);
+    } else {
+      throw 'Could not launch $url';
+    }
+  }
   void resetPassword() async{
     await FirebaseAuth.instance.sendPasswordResetEmail(email: email);
   }
@@ -242,7 +242,9 @@ class _LoginScreen extends State<LoginScreen> {
                                             FlatButton(
                                               child: Text('A revolução é aqui. VISITAR SITE!'),
 //                                              onPressed: _launchURL,
-                                              onPressed: (){},
+                                              onPressed: (){
+                                                _launchURL();
+                                              },
 
                                             ),
                                           ],
