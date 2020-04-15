@@ -31,7 +31,6 @@ class _ConfigsTabState extends State<ConfigsTab> {
         uidCompany = results;
       });
     });
-
   }
 
   @override
@@ -233,17 +232,6 @@ class CustomAppBar extends StatelessWidget with PreferredSizeWidget {
                     fontSize: 16,
                   ),
                 ),
-
-                IconButton(
-                  icon: Icon(
-                    Icons.exit_to_app,
-                    color: Colors.white,
-                  ),
-                  onPressed: () {
-//                    _loginBloc.signOut();
-//                    Navigator.pushReplacement(context, MaterialPageRoute(builder: (BuildContext context) => LoginScreen()));
-                  },
-                )
               ],
             ),
 //

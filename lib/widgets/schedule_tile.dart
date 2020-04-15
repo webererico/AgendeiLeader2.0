@@ -60,20 +60,34 @@ class _ScheduleTileState extends State<ScheduleTile> {
         builder: (BuildContext context) {
           return SimpleDialog(
             contentPadding: EdgeInsets.all(10.0),
-            title: const Text('Serviço Finalizado', style: TextStyle(fontWeight: FontWeight.bold),),
+            title: const Text(
+              'Serviço Finalizado',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
             children: <Widget>[
-              Text('Duração: '+ difference.inMinutes.toString()+' minutoss'),
-              SizedBox(height: 10,),
-              Text('Status pagamento: '+ widget.order.data['statusPayment']),
-              SizedBox(height: 10,),
+              Text('Duração: ' + difference.inMinutes.toString() + ' minutoss'),
+              SizedBox(
+                height: 10,
+              ),
+              Text('Status pagamento: ' + widget.order.data['statusPayment']),
+              SizedBox(
+                height: 10,
+              ),
               SimpleDialogOption(
-
-                onPressed: () { Navigator.pop(context); },
-                child:  FlatButton.icon(
-                  icon: Icon(Icons.attach_money, color: Colors.white,),
-                  label: Text('Cobrar e finalizar', style: TextStyle(color: Colors.white),),
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: FlatButton.icon(
+                  icon: Icon(
+                    Icons.attach_money,
+                    color: Colors.white,
+                  ),
+                  label: Text(
+                    'Cobrar e finalizar',
+                    style: TextStyle(color: Colors.white),
+                  ),
                   color: Colors.red,
-                  onPressed: (){
+                  onPressed: () {
                     print('finalizar serviço');
                   },
                 ),
@@ -84,19 +98,17 @@ class _ScheduleTileState extends State<ScheduleTile> {
 //              ),
             ],
           );
-        }
-    )) {
-
+        })) {
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Card(
-        elevation: 1.0,
+        elevation: 5.0,
         margin: EdgeInsets.all(10.0),
         child: Padding(
-          padding: const EdgeInsets.all(10.0),
+          padding: const EdgeInsets.all(6.0),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: <Widget>[
@@ -150,6 +162,21 @@ class _ScheduleTileState extends State<ScheduleTile> {
                       );
                     }
                   }),
+//              FutureBuilder<DocumentSnapshot>(
+//                  future: Firestore.instance
+//                      .collection('companies')
+//                      .document(widget.order.data['uidCompany']).collection('employees').document(widget.order.data['uidEmployee'])
+//                      .get(),
+//                  builder: (context, snapshot2) {
+//                    if (!snapshot2.hasData) {
+//                      return Container();
+//                    } else {
+//                      return Flexible(
+//                        flex: 3,
+//                        child: Text(snapshot2.data['fullName']),
+//                      );
+//                    }
+//                  }),
               SizedBox(
                 width: 20.0,
               ),
@@ -190,11 +217,11 @@ class _ScheduleTileState extends State<ScheduleTile> {
                       changeState('em andamento', 'startService');
                     } else if (statusSchedule == 'em andamento') {
                       print('alterar estado atendimento: finalizado');
-                      if(widget.order.data['statusPayment'] == 'pago'){
+                      if (widget.order.data['statusPayment'] == 'pago') {
                         _askedToLead();
-                      }else if(widget.order.data['statusPayment']== 'não pago'){
+                      } else if (widget.order.data['statusPayment'] ==
+                          'não pago') {
                         _askedToLead();
-
                       }
 //                      showStatus();
 //                      changeState('finalizado', 'endService');

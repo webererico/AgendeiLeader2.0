@@ -458,7 +458,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
         backgroundColor: Colors.green,
         duration: Duration(seconds: 60),
         onVisible: () {
-          Navigator.of(context).pop();
+          Navigator.of(context).pop(context);
         },
       ));
     }

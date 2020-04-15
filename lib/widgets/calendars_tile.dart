@@ -71,6 +71,9 @@ class CalendarsTile extends StatelessWidget {
               ),
               Divider(),
               ButtonBar(
+                buttonHeight: 2,
+                buttonMinWidth: 3,
+
                 children: <Widget>[
                   FlatButton(
                     child: Icon(Icons.edit),
@@ -91,7 +94,6 @@ class CalendarsTile extends StatelessWidget {
                     },
                   ),
                   FlatButton(
-
                     child: Icon(Icons.calendar_today),
                     onPressed: () {
                       Navigator.of(context).push(MaterialPageRoute(builder: (context)=>ScheduleScreen(uidCalendar: calendar.documentID,uidCompany:uidCompany, service: calendar.data['uidService'],)));

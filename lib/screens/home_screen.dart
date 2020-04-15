@@ -1,7 +1,7 @@
 
 import 'package:agendei/blocs/user_bloc.dart';
+import 'package:agendei/tabs/schedules_tab.dart';
 import 'package:agendei/tabs/calendars_tab.dart';
-import 'package:agendei/tabs/clients_tab.dart';
 import 'package:agendei/tabs/configs_tab.dart';
 import 'package:agendei/tabs/employees_tab.dart';
 import 'package:agendei/tabs/services_tab.dart';
@@ -50,16 +50,16 @@ class _HomeScreenState extends State<HomeScreen> {
           },
           items: [
             BottomNavigationBarItem(
-              icon: Icon(Icons.people),
-              title: Text('Clientes'),
+              icon: Icon(Icons.event),
+              title: Text('Agendamentos'),
             ),
             BottomNavigationBarItem(
               icon: Icon(Icons.calendar_today),
               title: Text('Agendas'),
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.person),
-              title: Text('Funcionários'),
+              icon: Icon(Icons.people),
+              title: Text('RH'),
             ),
             BottomNavigationBarItem(
               icon: Icon(Icons.list),
@@ -83,7 +83,7 @@ class _HomeScreenState extends State<HomeScreen> {
               });
             },
             children: <Widget>[
-              UsersTab(),
+              SchedulesTab(),
               CalendarTab(),
               EmployeeTab(),
               ServicesTab(),

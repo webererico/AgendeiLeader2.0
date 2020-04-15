@@ -496,6 +496,6 @@ class _EditCalendarScreenState extends State<EditCalendarScreen> {
       duration: Duration(seconds: 3),
       backgroundColor: Colors.orange,
     ));
-    Navigator.of(context).pop();
+    Navigator.of(context).pop(context);
   }
 }
