@@ -24,6 +24,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
   bool sex = false;
   bool sab = false;
   bool dom = false;
+  bool check = false;
   TimeOfDay time = TimeOfDay.now();
   TimeOfDay startTime = TimeOfDay.now();
   TimeOfDay endTime = TimeOfDay.now();
@@ -95,6 +96,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                 'sex': sex,
                 'sab': sab,
                 'dom': dom,
+                'check': check
               };
               saveCalendar(data);
             },
@@ -414,12 +416,35 @@ class _CalendarScreenState extends State<CalendarScreen> {
                         color: Colors.white,
                       ),
                       onPressed: () {
-//                      return Data();
                         selectEndTime(context);
                       },
                     ),
                   ],
                 ),
+                SizedBox(
+                  height: 10.0,
+                ),
+                Divider(
+                  color: Colors.white,
+                ),
+                Row(
+                  children: [
+                    Flexible(
+                      child: Text(
+                        'Permitir mais de um agendamento no mesmo horário?',
+                      style: TextStyle(fontSize: 20, color: Colors.white),),
+                    ),
+                    Checkbox(
+                      value: check,
+                      activeColor: Colors.blueAccent,
+                      onChanged: (value) {
+                        setState(() {
+                          check = value;
+                        });
+                      },
+                    )
+                  ],
+                )
               ],
             ),
           ],

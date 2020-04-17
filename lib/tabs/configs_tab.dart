@@ -1,4 +1,5 @@
 import 'package:agendei/blocs/login_bloc.dart';
+import 'package:agendei/screens/bugReport_screen.dart';
 import 'package:agendei/screens/login_screen.dart';
 import 'package:agendei/screens/profile_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -144,7 +145,7 @@ class _ConfigsTabState extends State<ConfigsTab> {
                     elevation: 0.0,
                     onPressed: () {
                       print('Reportar um bug');
-//                    Navigator.pushReplacement(context, MaterialPageRoute(builder: (BuildContext context) => LoginScreen()));
+                    Navigator.push(context, MaterialPageRoute(builder: (BuildContext context) => BugReportScreen()));
                     },
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.center,

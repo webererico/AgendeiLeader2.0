@@ -47,13 +47,17 @@ class ServiceBloc extends BlocBase {
     unsavedData['price'] = price;
   }
 
-  void saveDuration(String duration) {
+  void saveDuration(int duration) {
+    if(duration == 0){
+      duration = 1;
+    }
     unsavedData['duration'] = duration;
   }
 
   void savePublic(String public) {
     unsavedData['public'] = public;
   }
+
 
   Future<bool> saveService(String uidCompany) async {
     _loadingController.add(true);

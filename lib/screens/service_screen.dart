@@ -50,11 +50,11 @@ class _ServiceScreenState extends State<ServiceScreen> with ServiceValidators {
   Widget build(BuildContext context) {
     final _fieldStyle = TextStyle(
       color: Colors.white,
-      fontSize: 16.0,
+      fontSize: 20.0,
     );
     InputDecoration _buildDecoration(String label) {
       return InputDecoration(
-          labelText: label, labelStyle: TextStyle(color: Colors.grey));
+          labelText: label, labelStyle: TextStyle(color: Colors.white, fontSize: 20.0));
     }
 
     return Scaffold(
@@ -203,16 +203,47 @@ class _ServiceScreenState extends State<ServiceScreen> with ServiceValidators {
                         onSaved: _serviceBloc.savePrice,
                         validator: validatePrice,
                       ),
-                      TextFormField(
-                        initialValue: snapshot.data['duration'],
-                        style: _fieldStyle,
-                        keyboardType:
-                            TextInputType.numberWithOptions(decimal: true),
-                        decoration: _buildDecoration(
-                            'Tempo médio de duração (minutos)'),
-                        onSaved: _serviceBloc.saveDuration,
-                        validator: validateDuration,
+                      Row(
+                        children: [
+                          Flexible(
+                            child: Text('Tempo médio de duração (minutos)',style: TextStyle(color: Colors.white,
+                              fontSize: 20.0,),),
+                          ),
+                          DropdownButton<String>(
+                            value: snapshot.data['duration'],
+                            icon: Icon(Icons.timelapse, color: Colors.white,),
+                            iconSize: 30,
+                            elevation: 16,
+                            style: TextStyle(color: Colors.blueAccent),
+//                            underline: Container(
+//                              height: 2,
+//                              color: Colors.deepPurpleAccent,
+//                            ),
+                            onChanged: (String newValue) {
+                              setState(() {
+                                _serviceBloc.saveDuration(int.parse(newValue));
+                              });
+                            },
+                            items: <String>['1', '5', '6', '10','12', '15', '20','30']
+                                .map<DropdownMenuItem<String>>((String value) {
+                              return DropdownMenuItem<String>(
+                                value: value,
+                                child: Text(value, style: TextStyle(fontSize: 22.0),),
+                              );
+                            }).toList(),
+                          )
+                        ],
                       ),
+//                      TextFormField(
+//                        initialValue: snapshot.data['duration'],
+//                        style: _fieldStyle,
+//                        keyboardType:
+//                            TextInputType.numberWithOptions(decimal: true),
+//                        decoration: _buildDecoration(
+//                            'Tempo médio de duração (minutos)'),
+//                        onSaved: _serviceBloc.saveDuration,
+//                        validator: validateDuration,
+//                      ),
                     ],
                   );
                 }),
@@ -252,12 +283,11 @@ class _ServiceScreenState extends State<ServiceScreen> with ServiceValidators {
         content: Text(
           success ? 'Serviço salvo com sucesso!' : 'Erro ao salvar serviço',
           style: TextStyle(color: Colors.white),
-
         ),
         backgroundColor: Colors.green,
         duration: Duration(seconds: 60),
-        onVisible: (){
-          Navigator.of(context).pop();
+        onVisible: () {
+          Navigator.of(context).pop(context);
         },
       ));
     }

@@ -34,6 +34,7 @@ class _EditCalendarScreenState extends State<EditCalendarScreen> {
   bool sex = false;
   bool sab = false;
   bool dom = false;
+  bool check = false;
   TimeOfDay time = TimeOfDay.now();
   TimeOfDay startTime = TimeOfDay.now();
   TimeOfDay endTime = TimeOfDay.now();
@@ -70,6 +71,7 @@ class _EditCalendarScreenState extends State<EditCalendarScreen> {
       sex = calendar.data['sex'];
       sab = calendar.data['sab'];
       dom = calendar.data['dom'];
+      check = calendar.data['check'];
       lastEndTime = calendar.data['endTime'];
       lastStartTime = calendar.data['startTime'];
     });
@@ -421,6 +423,30 @@ class _EditCalendarScreenState extends State<EditCalendarScreen> {
                     ),
                   ],
                 ),
+                SizedBox(
+                  height: 10.0,
+                ),
+                Divider(
+                  color: Colors.white,
+                ),
+                Row(
+                  children: [
+                    Flexible(
+                      child: Text(
+                        'Permitir mais de um agendamento no mesmo horário?',
+                        style: TextStyle(fontSize: 20, color: Colors.white),),
+                    ),
+                    Checkbox(
+                      value: check,
+                      activeColor: Colors.blueAccent,
+                      onChanged: (value) {
+                        setState(() {
+                          check = value;
+                        });
+                      },
+                    )
+                  ],
+                )
               ],
             ),
           ],
@@ -444,6 +470,7 @@ class _EditCalendarScreenState extends State<EditCalendarScreen> {
               'sex': sex,
               'sab': sab,
               'dom': dom,
+              'check': check
             };
             saveCalendar(data);
           },
