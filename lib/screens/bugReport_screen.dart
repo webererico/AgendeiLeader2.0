@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'package:agendei/tabs/configs_tab.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -98,7 +97,7 @@ class _BugReportScreenState extends State<BugReportScreen> {
 
   void saveReport() async {
     DateTime now = DateTime.now();
-    Timestamp created_at = Timestamp.fromDate(now);
+    Timestamp createdAt = Timestamp.fromDate(now);
     if (_formKey.currentState.validate()) {
       final FirebaseUser company = await FirebaseAuth.instance.currentUser();
       Map<String, dynamic> bugReport = {
@@ -108,7 +107,7 @@ class _BugReportScreenState extends State<BugReportScreen> {
         'subject': _subjectController.text.toString(),
         'text:': _textController.text.toString(),
         'notificar': check,
-        'created_at': created_at
+        'createdAt': createdAt
       };
 
       _scaffoldKey.currentState.showSnackBar(SnackBar(
@@ -126,7 +125,7 @@ class _BugReportScreenState extends State<BugReportScreen> {
           .setData(bugReport);
       Timer(
           Duration(seconds: 4),
-              () => Navigator.of(context).pop());
+              () => Navigator.of(context).pop(context));
     }
   }
 }

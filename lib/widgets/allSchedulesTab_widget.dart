@@ -10,10 +10,6 @@ class AllSchedulesTabWidget extends StatefulWidget {
 
 class _AllSchedulesTabWidgetState extends State<AllSchedulesTabWidget> {
   List<DocumentSnapshot> allOrdersList = List<DocumentSnapshot>();
-
-
-
-
   Future<List<DocumentSnapshot>> getCalendarsOrders() async {
     final FirebaseUser user = await FirebaseAuth.instance.currentUser();
     List<DocumentSnapshot> allOrders = List<DocumentSnapshot>();
@@ -63,6 +59,7 @@ class _AllSchedulesTabWidgetState extends State<AllSchedulesTabWidget> {
       shrinkWrap: true,
       itemCount: allOrdersList.length,
       itemBuilder: (context, index) {
+//        print('uidCalendar'+allOrdersList[index].data['uidCalendar']);
         return ScheduleTile(
           uidCalendar: allOrdersList[index].data['uidCalendar'],
           order: allOrdersList[index],

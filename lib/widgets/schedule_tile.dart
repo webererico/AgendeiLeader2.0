@@ -5,6 +5,7 @@ class ScheduleTile extends StatefulWidget {
   final String uidCalendar;
   final DocumentSnapshot order;
 
+
   ScheduleTile({this.uidCalendar, this.order, Key key}) : super(key: key);
 
   @override
@@ -14,23 +15,21 @@ class ScheduleTile extends StatefulWidget {
 class _ScheduleTileState extends State<ScheduleTile> {
   String statusSchedule;
   var start;
-  var end;
+  var finish;
 
   @override
   void initState() {
     super.initState();
     setState(() {
       statusSchedule = widget.order.data['statusSchedule'];
-      print(statusSchedule);
-      print('entrou');
     });
   }
 
-  changeState(String status, String variable) async {
-    start = new DateTime.now();
+  startService(String status) async {
+    start = Timestamp.fromDate(DateTime.now());
     final Map<String, dynamic> data = {
       'statusSchedule': status,
-      variable: Timestamp.fromDate(start)
+      'startService': start
     };
     Firestore.instance
         .collection('users')
@@ -38,6 +37,10 @@ class _ScheduleTileState extends State<ScheduleTile> {
         .collection('orders')
         .document(widget.order.documentID)
         .updateData(data);
+    print('user-> order -> updated');
+    print('uidCompany'+widget.order.data['uidCompany']);
+    print('uidcalendar'+widget.uidCalendar);
+    print(widget.order.documentID);
     Firestore.instance
         .collection('companies')
         .document(widget.order.data['uidCompany'])
@@ -51,9 +54,60 @@ class _ScheduleTileState extends State<ScheduleTile> {
     });
   }
 
+  finishService(String status, DateTime finish) async{
+    final Map<String, dynamic> data = {
+      'statusSchedule': status,
+      'finishService': Timestamp.fromDate(finish),
+      'evalueationService': null,
+      'evalueationEmployee': null
+    };
+    DocumentSnapshot documentSnapshotUser = await Firestore.instance
+        .collection('users')
+        .document(widget.order.data['uidClient'])
+        .collection('orders')
+        .document(widget.order.documentID).get();
+    documentSnapshotUser.data.update('statusSchedule', (value) => status);
+    documentSnapshotUser.data.update('finishService', (value) => Timestamp.fromDate(finish));
+    Firestore.instance.collection('users').document(widget.order.data['uidClient']).collection('orders').document(documentSnapshotUser.documentID).setData(documentSnapshotUser.data);
+    Firestore.instance
+        .collection('users')
+        .document(widget.order.data['uidClient'])
+        .collection('orders')
+        .document(widget.order.documentID).delete();
+    print('salvou no finishOrders do usuário');
+
+
+    DocumentSnapshot documentSnapshotCompany = await Firestore.instance
+        .collection('companies')
+        .document(widget.order.data['uidCompany'])
+        .collection('calendars')
+        .document(widget.uidCalendar)
+        .collection('orders')
+        .document(widget.order.documentID)
+        .get();
+    documentSnapshotCompany.data.update('statusSchedule', (value) => status);
+    documentSnapshotCompany.data.update('finishService', (value) => Timestamp.fromDate(finish));
+    Firestore.instance.collection('companies').document(widget.order.data['uidCompany']).collection('services').document(widget.order.data['uidService']).collection('history').document(documentSnapshotCompany.documentID).setData(documentSnapshotCompany.data);
+    Firestore.instance
+        .collection('companies')
+        .document(widget.order.data['uidCompany'])
+        .collection('calendars')
+        .document(widget.uidCalendar)
+        .collection('orders')
+        .document(widget.order.documentID).delete();
+    print('salvou no historico do servico da empresa');
+
+    setState(() {
+      statusSchedule = status;
+    });
+    setState(() {
+      statusSchedule = status;
+    });
+  }
+
   Future<void> _askedToLead() async {
-    end = new DateTime.now();
-    final _end = Timestamp.fromDate(end).toDate();
+    var finish  = new DateTime.now();
+    final _end = Timestamp.fromDate(finish).toDate();
     final difference = _end.difference(Timestamp.fromDate(start).toDate());
     switch (await showDialog(
         context: context,
@@ -89,6 +143,7 @@ class _ScheduleTileState extends State<ScheduleTile> {
                   color: Colors.red,
                   onPressed: () {
                     print('finalizar serviço');
+                    finishService('finalizado', finish);
                   },
                 ),
               ),
@@ -162,21 +217,6 @@ class _ScheduleTileState extends State<ScheduleTile> {
                       );
                     }
                   }),
-//              FutureBuilder<DocumentSnapshot>(
-//                  future: Firestore.instance
-//                      .collection('companies')
-//                      .document(widget.order.data['uidCompany']).collection('employees').document(widget.order.data['uidEmployee'])
-//                      .get(),
-//                  builder: (context, snapshot2) {
-//                    if (!snapshot2.hasData) {
-//                      return Container();
-//                    } else {
-//                      return Flexible(
-//                        flex: 3,
-//                        child: Text(snapshot2.data['fullName']),
-//                      );
-//                    }
-//                  }),
               SizedBox(
                 width: 20.0,
               ),
@@ -211,10 +251,10 @@ class _ScheduleTileState extends State<ScheduleTile> {
                   heroTag: 'scheduleTime',
                   onPressed: () {
                     print('alterar estado atendimento');
-                    print(widget.order.data['statusPayment']);
+                    print(widget.order.data['statusSchedule']);
                     if (statusSchedule == 'agendado') {
-                      print('alterar estado atendimento: agendado');
-                      changeState('em andamento', 'startService');
+                      print('alterar estado atendimento: em andamento');
+                      startService('em andamento');
                     } else if (statusSchedule == 'em andamento') {
                       print('alterar estado atendimento: finalizado');
                       if (widget.order.data['statusPayment'] == 'pago') {

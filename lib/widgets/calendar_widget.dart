@@ -1,7 +1,11 @@
+//import 'dart:html';
+
+import 'package:agendei/widgets/schedule_tile.dart';
 import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:intl/date_symbol_data_local.dart';
 
 // Example holidays
 final Map<DateTime, List> _holidays = {
@@ -19,12 +23,13 @@ class CalendarTabWidget extends StatefulWidget {
 
 class _CalendarTabWidgetState extends State<CalendarTabWidget>
     with TickerProviderStateMixin {
-  Map<DateTime, List> _events;
+  Map<DateTime, List<DocumentSnapshot>> _events = {};
   List _selectedEvents;
   AnimationController _animationController;
   CalendarController _calendarController;
-  final _selectedDay = DateTime.now();
+  DateTime _selectedDay = DateTime.now();
   List<DocumentSnapshot> allOrdersList = List<DocumentSnapshot>();
+  List<DocumentSnapshot> ordersFinal = List<DocumentSnapshot>();
 
   Future<List<DocumentSnapshot>> getCalendarsOrders() async {
     final FirebaseUser user = await FirebaseAuth.instance.currentUser();
@@ -47,99 +52,59 @@ class _CalendarTabWidgetState extends State<CalendarTabWidget>
           .where('statusSchedule', isEqualTo: 'agendado')
           .getDocuments();
       print('quandidade de orders: ' + orders.documents.length.toString());
+      _events.clear();
       if (orders.documents.length != 0) {
         List<DocumentSnapshot> ordersList = orders.documents;
+        print('entrou');
         for (int i = 0; i < ordersList.length; i++) {
+          allOrders.clear();
           print('order: ' + ordersList[i].documentID);
-          allOrders.add(ordersList[i]);
-          print('allOrders: ' + allOrders.length.toString());
+          Timestamp date = ordersList[i].data['dateTime'];
+          print('data da Order: '+date.toDate().toString());
+
+          print('entrou2');
+          if(_events.containsKey(date.toDate())){
+            print('entrou4');
+            ordersFinal = _events[date.toDate()];
+            ordersFinal.add(ordersList[i]);
+            allOrders = ordersFinal;
+            ordersFinal.clear();
+          }else{
+            allOrders.add(ordersList[i]);
+            print('entrou3');
+          }
+          print('entrou5');
+
+          _events.putIfAbsent(date.toDate(), ()=> allOrders);
+
+
+
         }
       }
+      print(_events.toString());
     }
+
     return allOrders;
-  }
-  calculateTime(){
-    for(int index = 0; index < allOrdersList.length; index++ ){
-      Timestamp date = allOrdersList[index].data['dateTime'];
-      DateTime orderDate = date.toDate();
-      print('dia: '+orderDate.day.toString());
-      int day = _selectedDay.day - orderDate.day;
-
-
-    }
   }
 
 
   @override
   void initState() {
+    initializeDateFormatting();
     super.initState();
-
     getCalendarsOrders().then((result) {
       setState(() {
         allOrdersList = result;
-        calculateTime();
+
       });
     });
-    calculateTime();
 
-
-    _events = {
-      _selectedDay.subtract(Duration(days: 30)): [
-        'Event A0',
-        'Event B0',
-        'Event C0'
-      ],
-      _selectedDay.subtract(Duration(days: 27)): ['Event A1'],
-      _selectedDay.subtract(Duration(days: 20)): [
-        'Event A2',
-        'Event B2',
-        'Event C2',
-        'Event D2'
-      ],
-      _selectedDay.subtract(Duration(days: 16)): ['Event A3', 'Event B3'],
-      _selectedDay.subtract(Duration(days: 10)): [
-        'Event A4',
-        'Event B4',
-        'Event C4'
-      ],
-      _selectedDay.subtract(Duration(days: 4)): [
-        'Event A5',
-        'Event B5',
-        'Event C5'
-      ],
-      _selectedDay.subtract(Duration(days: 2)): ['Event A6', 'Event B6'],
-      _selectedDay: ['Event A7', 'Event B7', 'Event C7', 'Event D7'],
-      _selectedDay.add(Duration(days: 1)): [
-        'Event A8',
-        'Event B8',
-        'Event C8',
-        'Event D8'
-      ],
-      _selectedDay.add(Duration(days: 3)):
-          Set.from(['Event A9', 'Event A9', 'Event B9']).toList(),
-      _selectedDay.add(Duration(days: 7)): [
-        'Event A10',
-        'Event B10',
-        'Event C10'
-      ],
-      _selectedDay.add(Duration(days: 11)): ['Event A11', 'Event B11'],
-      _selectedDay.add(Duration(days: 17)): [
-        'Event A12',
-        'Event B12',
-        'Event C12',
-        'Event D12'
-      ],
-      _selectedDay.add(Duration(days: 22)): ['Event A13', 'Event B13'],
-      _selectedDay.add(Duration(days: 26)): [
-        'Event A14',
-        'Event B14',
-        'Event C14'
-      ],
-    };
 
     _selectedEvents = _events[_selectedDay] ?? [];
+    for (int i = 0; i < _selectedEvents.length; i++) {
+      print(_selectedEvents[i].data['statusSchedule']);
+    }
     _calendarController = CalendarController();
-
     _animationController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 400),
@@ -148,20 +113,28 @@ class _CalendarTabWidgetState extends State<CalendarTabWidget>
     _animationController.forward();
   }
 
+
+
+
+  void _onDaySelected(DateTime day, List events) {
+    print('CALLBACK: _onDaySelected');
+    setState(() {
+      _selectedDay = day;
+      print('dia selecionado' + _selectedDay.toIso8601String());
+
+    });
+    setState(() {
+      getCalendarsOrders();
+    });
+    _selectedEvents = events;
+  }
+
   @override
   void dispose() {
     _animationController.dispose();
     _calendarController.dispose();
     super.dispose();
   }
-
-  void _onDaySelected(DateTime day, List events) {
-    print('CALLBACK: _onDaySelected');
-    setState(() {
-      _selectedEvents = events;
-    });
-  }
-
   void _onVisibleDaysChanged(
       DateTime first, DateTime last, CalendarFormat format) {
     print('CALLBACK: _onVisibleDaysChanged');
@@ -198,6 +171,7 @@ class _CalendarTabWidgetState extends State<CalendarTabWidget>
     return TableCalendar(
       calendarController: _calendarController,
       events: _events,
+      locale: 'pt_BR',
       holidays: _holidays,
       startingDayOfWeek: StartingDayOfWeek.monday,
       calendarStyle: CalendarStyle(
@@ -219,199 +193,16 @@ class _CalendarTabWidgetState extends State<CalendarTabWidget>
       onCalendarCreated: _onCalendarCreated,
     );
   }
-
-  // More advanced TableCalendar configuration (using Builders & Styles)
-//  Widget _buildTableCalendarWithBuilders() {
-//    return TableCalendar(
-//      locale: 'pl_PL',
-//      calendarController: _calendarController,
-//      events: _events,
-//      holidays: _holidays,
-//      initialCalendarFormat: CalendarFormat.week,
-//      formatAnimation: FormatAnimation.slide,
-//      startingDayOfWeek: StartingDayOfWeek.sunday,
-//      availableGestures: AvailableGestures.all,
-//      availableCalendarFormats: const {
-//        CalendarFormat.month: '',
-//        CalendarFormat.week: '',
-//      },
-//      calendarStyle: CalendarStyle(
-//        outsideDaysVisible: false,
-//        weekendStyle: TextStyle().copyWith(color: Colors.blue[800]),
-//        holidayStyle: TextStyle().copyWith(color: Colors.blue[800]),
-//      ),
-//      daysOfWeekStyle: DaysOfWeekStyle(
-//        weekendStyle: TextStyle().copyWith(color: Colors.blue[600]),
-//      ),
-//      headerStyle: HeaderStyle(
-//        centerHeaderTitle: true,
-//        formatButtonVisible: false,
-//      ),
-//      builders: CalendarBuilders(
-//        selectedDayBuilder: (context, date, _) {
-//          return FadeTransition(
-//            opacity: Tween(begin: 0.0, end: 1.0).animate(_animationController),
-//            child: Container(
-//              margin: const EdgeInsets.all(4.0),
-//              padding: const EdgeInsets.only(top: 5.0, left: 6.0),
-//              color: Colors.blue[300],
-//              width: 100,
-//              height: 100,
-//              child: Text(
-//                '${date.day}',
-//                style: TextStyle().copyWith(fontSize: 16.0),
-//              ),
-//            ),
-//          );
-//        },
-//        todayDayBuilder: (context, date, _) {
-//          return Container(
-//            margin: const EdgeInsets.all(4.0),
-//            padding: const EdgeInsets.only(top: 5.0, left: 6.0),
-//            color: Colors.blue[400],
-//            width: 100,
-//            height: 100,
-//            child: Text(
-//              '${date.day}',
-//              style: TextStyle().copyWith(fontSize: 16.0),
-//            ),
-//          );
-//        },
-//        markersBuilder: (context, date, events, holidays) {
-//          final children = <Widget>[];
-//
-//          if (events.isNotEmpty) {
-//            children.add(
-//              Positioned(
-//                right: 1,
-//                bottom: 1,
-//                child: _buildEventsMarker(date, events),
-//              ),
-//            );
-//          }
-//
-//          if (holidays.isNotEmpty) {
-//            children.add(
-//              Positioned(
-//                right: -2,
-//                top: -2,
-//                child: _buildHolidaysMarker(),
-//              ),
-//            );
-//          }
-//
-//          return children;
-//        },
-//      ),
-//      onDaySelected: (date, events) {
-//        _onDaySelected(date, events);
-//        _animationController.forward(from: 0.0);
-//      },
-//      onVisibleDaysChanged: _onVisibleDaysChanged,
-//      onCalendarCreated: _onCalendarCreated,
-//    );
-//  }
-
-//  Widget _buildEventsMarker(DateTime date, List events) {
-//    return AnimatedContainer(
-//      duration: const Duration(milliseconds: 300),
-//      decoration: BoxDecoration(
-//        shape: BoxShape.rectangle,
-//        color: _calendarController.isSelected(date)
-//            ? Colors.brown[500]
-//            : _calendarController.isToday(date)
-//                ? Colors.brown[300]
-//                : Colors.blue[400],
-//      ),
-//      width: 16.0,
-//      height: 16.0,
-//      child: Center(
-//        child: Text(
-//          '${events.length}',
-//          style: TextStyle().copyWith(
-//            color: Colors.white,
-//            fontSize: 12.0,
-//          ),
-//        ),
-//      ),
-//    );
-//  }
-
-//  Widget _buildHolidaysMarker() {
-//    return Icon(
-//      Icons.add_box,
-//      size: 20.0,
-//      color: Colors.blueGrey[800],
-//    );
-//  }
-
-//  Widget _buildButtons() {
-//    final dateTime = _events.keys.elementAt(_events.length - 2);
-//
-//    return Column(
-//      children: <Widget>[
-//        Row(
-//          mainAxisSize: MainAxisSize.max,
-//          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-//          children: <Widget>[
-//            RaisedButton(
-//              child: Text('Mês'),
-//              onPressed: () {
-//                setState(() {
-//                  _calendarController.setCalendarFormat(CalendarFormat.month);
-//                });
-//              },
-//            ),
-//            RaisedButton(
-//              child: Text('2 semanas'),
-//              onPressed: () {
-//                setState(() {
-//                  _calendarController
-//                      .setCalendarFormat(CalendarFormat.twoWeeks);
-//                });
-//              },
-//            ),
-//            RaisedButton(
-//              child: Text('Semana'),
-//              onPressed: () {
-//                setState(() {
-//                  _calendarController.setCalendarFormat(CalendarFormat.week);
-//                });
-//              },
-//            ),
-//          ],
-//        ),
-//        const SizedBox(height: 8.0),
-//        RaisedButton(
-//          child: Text(
-//              'Set day ${dateTime.day}-${dateTime.month}-${dateTime.year}'),
-//          onPressed: () {
-//            _calendarController.setSelectedDay(
-//              DateTime(dateTime.year, dateTime.month, dateTime.day),
-//              runCallback: true,
-//            );
-//          },
-//        ),
-//      ],
-//    );
-//  }
-
   Widget _buildEventList() {
-    return ListView(
-      children: _selectedEvents
-          .map((event) => Container(
-                decoration: BoxDecoration(
-                  border: Border.all(width: 0.8),
-                  borderRadius: BorderRadius.circular(12.0),
-                ),
-                margin:
-                    const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
-                child: ListTile(
-                  title: Text(event.toString()),
-                  onTap: () => print('$event tapped!'),
-                ),
-              ))
-          .toList(),
+    return ListView.builder(
+      shrinkWrap: true,
+      itemCount: _selectedEvents.length,
+      itemBuilder: (context, index) {
+        return ScheduleTile(
+          uidCalendar: _selectedEvents[index].data['uidCalendar'],
+          order: _selectedEvents[index],
+        );
+      },
     );
   }
 }

@@ -55,14 +55,21 @@ class _SchedulesTabState extends State<SchedulesTab> {
               backgroundColor: Colors.blueAccent,
               title: companyName == null ? Text('') : Text(companyName),
               centerTitle: true,
+              actions: [
+                IconButton(
+                    icon: Icon(Icons.refresh), onPressed: (){
+//                    Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context)=> SchedulesTab()));
+                }
+                )
+              ],
               bottom: TabBar(
                 indicatorColor: Colors.white,
                 tabs: [
                   Tab(
-                    icon: Icon(Icons.calendar_view_day),
+                    icon: Icon(Icons.calendar_today),
                   ),
                   Tab(
-                    icon: Icon(Icons.calendar_today),
+                    icon: Icon(Icons.calendar_view_day),
                   ),
                   Tab(
                     icon: Icon(Icons.people_outline),
@@ -73,8 +80,8 @@ class _SchedulesTabState extends State<SchedulesTab> {
             body: TabBarView(
               physics: NeverScrollableScrollPhysics(),
               children: [
-                AllSchedulesTabWidget(),
                 CalendarTabWidget(),
+                AllSchedulesTabWidget(),
                 ClientsTab(uidCompany: uidCompany),
               ],
             ),
