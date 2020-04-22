@@ -549,36 +549,47 @@ class _CalendarScreenState extends State<CalendarScreen> {
 
     if (_formKey.currentState.validate()) {
       print('salvando calendário');
-
-      _formKey.currentState.save();
-      _scaffoldKey.currentState.showSnackBar(SnackBar(
-        content: Text(
-          'Criando novo calendário da empresa...',
-          style: TextStyle(color: Colors.white),
-        ),
-        backgroundColor: Colors.blueAccent,
-        duration: Duration(minutes: 1),
-      ));
-      await Firestore.instance
-          .collection('companies')
-          .document(uidCompany)
-          .collection('calendars')
-          .add(data);
-      print('salvou');
+      if(startTime.isBefore(endTime)){
+        _formKey.currentState.save();
+        _scaffoldKey.currentState.showSnackBar(SnackBar(
+          content: Text(
+            'Criando novo calendário da empresa...',
+            style: TextStyle(color: Colors.white),
+          ),
+          backgroundColor: Colors.blueAccent,
+          duration: Duration(minutes: 1),
+        ));
+        await Firestore.instance
+            .collection('companies')
+            .document(uidCompany)
+            .collection('calendars')
+            .add(data);
+        print('salvou');
 //      bool success = await _profileBloc.saveCompany(usera);
-      _scaffoldKey.currentState.removeCurrentSnackBar();
-      _scaffoldKey.currentState.showSnackBar(SnackBar(
-        content: Text(
+        _scaffoldKey.currentState.removeCurrentSnackBar();
+        _scaffoldKey.currentState.showSnackBar(SnackBar(
+          content: Text(
 //          success ? 'Dados atualizados com sucesso!' : 'Erro ao salvar serviço',
-          'passou',
-          style: TextStyle(color: Colors.white),
-        ),
-        backgroundColor: Colors.green,
-        duration: Duration(seconds: 60),
-        onVisible: () {
-          Navigator.of(context).pop(context);
-        },
-      ));
+            'passou',
+            style: TextStyle(color: Colors.white),
+          ),
+          backgroundColor: Colors.green,
+          duration: Duration(seconds: 60),
+          onVisible: () {
+            Navigator.of(context).pop(context);
+          },
+        ));
+      }else{
+        _scaffoldKey.currentState.showSnackBar(SnackBar(
+          content: Text(
+            'O horário inicial precisa ser antes do final',
+            style: TextStyle(color: Colors.white),
+          ),
+          backgroundColor: Colors.red,
+          duration: Duration(seconds: 3),
+        ));
+      }
+
     }
   }
 }

@@ -40,6 +40,7 @@ class _NewClientScreenState extends State<NewClientScreen> {
 //    }
 
   void saveClient() async {
+    print('salvando cliente....');
     _scaffoldKey.currentState.showSnackBar(SnackBar(
       content: Text('Cliente criado com sucesso!'),
       backgroundColor: Colors.green,
@@ -57,12 +58,12 @@ class _NewClientScreenState extends State<NewClientScreen> {
       Map<String, dynamic> userUid = {
         'uidUser': value.documentID,
       };
-      print('salvou');
+      print('cliente salvo');
       Firestore.instance
           .collection('companies')
           .document(user.uid)
-          .collection('clients')
-          .add(userUid);
+          .collection('clients').document(value.documentID)
+          .setData(userUid);
       print('salvou2');
     });
     Future.delayed(Duration(seconds: 2)).then((_) {
@@ -76,7 +77,7 @@ class _NewClientScreenState extends State<NewClientScreen> {
       key: _scaffoldKey,
       appBar: AppBar(
         title: Text(
-          'Criar usuário',
+          'Criar cliente',
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
         actions: <Widget>[],

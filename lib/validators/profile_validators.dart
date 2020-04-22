@@ -28,6 +28,14 @@ class ProfileValidators{
     print('valido');
     return null;
   }
+  String validadePass(String pass){
+    if(pass.isEmpty || pass.length<6){
+      return 'senha inválida. Informe sua senha para alterar seus dados.';
+    }else{
+      print('valido');
+      return null;
+    }
+  }
 
 
 }

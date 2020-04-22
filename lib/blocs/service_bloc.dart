@@ -27,7 +27,7 @@ class ServiceBloc extends BlocBase {
         'name': null,
         'description': null,
         'price': null,
-        'duration': null,
+        'duration': 0,
         'public': null,
       };
       _createdController.add(false);
@@ -85,16 +85,6 @@ class ServiceBloc extends BlocBase {
   void deleteService() {
     service.reference.delete();
   }
-
-//  Future _uploadImages(String serviceId) async{
-//    for(int i = 0; i<unsavedData['images'].length; i++){
-//      if(unsavedData['images'][i] is String) continue;
-//        StorageUploadTask uploadTask = FirebaseStorage.instance.ref().child(categoryId).putFile(unsavedData['images'][i]);
-//        StorageTaskSnapshot  s = await uploadTask.onComplete;
-//        String downloadUrl = await s.ref.getDownloadURL();
-//        unsavedData['images'][i] = downloadUrl;
-//    }
-//  }
 
   @override
   void dispose() {

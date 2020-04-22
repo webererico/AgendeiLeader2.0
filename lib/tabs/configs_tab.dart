@@ -1,3 +1,4 @@
+
 import 'package:agendei/blocs/login_bloc.dart';
 import 'package:agendei/screens/bugReport_screen.dart';
 import 'package:agendei/screens/login_screen.dart';
@@ -17,35 +18,53 @@ class _ConfigsTabState extends State<ConfigsTab> {
   Future<DocumentSnapshot> snapshot;
   DocumentSnapshot company;
   String uidCompany;
+  int clients;
+  int calendars;
+  int services;
+  int employees;
 
   getUID() async {
     final FirebaseUser user = await FirebaseAuth.instance.currentUser();
+    uidCompany = user.uid.toString();
     company = await Firestore.instance.collection('companies').document(user.uid).get();
+    QuerySnapshot queryCalendars = await Firestore.instance.collection('companies').document(user.uid).collection('calendars').getDocuments();
+    QuerySnapshot queryClients = await Firestore.instance.collection('companies').document(user.uid).collection('clients').getDocuments();
+    QuerySnapshot queryServices = await Firestore.instance.collection('companies').document(user.uid).collection('services').getDocuments();
+    QuerySnapshot queryEmployees = await Firestore.instance.collection('companies').document(user.uid).collection('employees').getDocuments();
+    calendars = queryCalendars.documents.length;
+    clients = queryClients.documents.length;
+    services = queryServices.documents.length;
+    employees = queryEmployees.documents.length;
+    print('calendarios: '+calendars.toString());
+    print('clients: '+clients.toString());
+    print('serviços: '+services.toString());
+    print('funcionarios: '+employees.toString());
     print(company.documentID.toString());
-    final uidCompany = user.uid.toString();
     return uidCompany;
   }
 
   @override
   void initState() {
-    super.initState();
+
     getUID().then((results) {
       setState(() {
         uidCompany = results;
       });
     });
+    super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.grey[850],
-      appBar: CustomAppBar(company),
-      body: FutureBuilder<DocumentSnapshot>(
-          future: Firestore.instance
+      appBar: CustomAppBar(company, calendars, clients, employees, services),
+      body: StreamBuilder<DocumentSnapshot>(
+        initialData: company,
+          stream: Firestore.instance
               .collection('companies')
               .document(uidCompany)
-              .get(),
+              .snapshots(),
           builder: (context, snapshot) {
             if (!snapshot.hasData)
               return Center(
@@ -205,7 +224,12 @@ class _ConfigsTabState extends State<ConfigsTab> {
 
 class CustomAppBar extends StatelessWidget with PreferredSizeWidget {
   final DocumentSnapshot company;
-  CustomAppBar(this.company);
+  final int clients;
+  final int employees;
+  final int services;
+  final int calendars;
+
+  CustomAppBar(this.company, this.calendars, this.clients, this.employees, this.services);
   @override
   Size get preferredSize => Size(double.infinity, 400);
 
@@ -235,7 +259,7 @@ class CustomAppBar extends StatelessWidget with PreferredSizeWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: <Widget>[
-                Column(
+                company.data != null ? Column(
                   children: <Widget>[
                     SizedBox(
                       height: 40,
@@ -248,7 +272,8 @@ class CustomAppBar extends StatelessWidget with PreferredSizeWidget {
                           shape: BoxShape.circle,
                           image: DecorationImage(
                             fit: BoxFit.cover,
-                            image: company.data['img']== null ? Icons.image : NetworkImage(company.data['img']) ,
+
+                            image: company.data['img'] == null ? NetworkImage('https://firebasestorage.googleapis.com/v0/b/loja-f7ade.appspot.com/o/company.png?alt=media&token=549bdc9b-4c95-442c-a5d6-20b330171aab') : NetworkImage(company.data['img']) ,
                           )),
                     ),
                     SizedBox(
@@ -259,7 +284,7 @@ class CustomAppBar extends StatelessWidget with PreferredSizeWidget {
                       style: TextStyle(color: Colors.white, fontSize: 18),
                     ),
                   ],
-                ),
+                ): Container(),
                 Column(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: <Widget>[
@@ -269,7 +294,7 @@ class CustomAppBar extends StatelessWidget with PreferredSizeWidget {
                     ),
 
                     Text(
-                      "12",
+                      clients.toString(),
                       style: TextStyle(fontSize: 26, color: Colors.white),
                     )
                   ],
@@ -281,7 +306,7 @@ class CustomAppBar extends StatelessWidget with PreferredSizeWidget {
                       color: Colors.white,
                     ),
                     Text(
-                      "8",
+                      calendars.toString(),
                       style: TextStyle(fontSize: 26, color: Colors.white),
                     )
                   ],
@@ -293,7 +318,7 @@ class CustomAppBar extends StatelessWidget with PreferredSizeWidget {
                       color: Colors.white,
                     ),
                     Text(
-                      "4",
+                      employees.toString(),
                       style: TextStyle(fontSize: 26, color: Colors.white),
                     )
                   ],
@@ -310,7 +335,7 @@ class CustomAppBar extends StatelessWidget with PreferredSizeWidget {
                       color: Colors.white,
                     ),
                     Text(
-                      "20",
+                      services.toString(),
                       style: TextStyle(color: Colors.white, fontSize: 24),
                     )
                   ],

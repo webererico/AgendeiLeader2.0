@@ -74,7 +74,7 @@ class _NewProfileState extends State<NewProfile> {
       appBar: AppBar(
         backgroundColor: Colors.blueAccent,
         elevation: 0.0,
-        title: Text('Criar o perfil de minha empresa'),
+        title: Text('Perfil da Empresa'),
       ),
       body: Form(
         key: _formKey,
@@ -296,7 +296,7 @@ class _NewProfileState extends State<NewProfile> {
                         value: selectedCategory,
                         isExpanded: false,
                         hint: Text(
-                          'Escolha a categoria de Empresa',
+                          'Escolha a categoria de serviço',
                           style: TextStyle(color: Colors.black),
                         ),
                       ),
@@ -451,40 +451,38 @@ class _NewProfileState extends State<NewProfile> {
       ));
       FirebaseUser user = (await FirebaseAuth.instance
               .createUserWithEmailAndPassword(
-                  email: userData['email'], password: _passController.text).catchError((signUpError){
-                    if(signUpError is PlatformException){
-                      if(signUpError.code == 'ERROR_EMAIL_ALREADY_IN_USE'){
-                         showDialog<void>(
-                            context: context,
-                            barrierDismissible: false, // user must tap button!
-                            builder: (BuildContext context) {
-                              return AlertDialog(
-                                title: Text(
-                                    'E-mail em uso'),
-                                content: Text(
-                                    'Este e-mail já encontra-se em uso'),
-                                actions: <Widget>[
-                                  FlatButton(
-                                    onPressed: () {
-                                      Navigator.of(context).pop();
-                                    },
-                                    child: Text('Ok'),
-                                  ),
-                                ],
-                              );
-                            });
-                         _scaffoldKey.currentState.removeCurrentSnackBar();
-                      }
-                    }
-      })).user;
+                  email: userData['email'], password: _passController.text)
+              .catchError((signUpError) {
+        if (signUpError is PlatformException) {
+          if (signUpError.code == 'ERROR_EMAIL_ALREADY_IN_USE') {
+            showDialog<void>(
+                context: context,
+                barrierDismissible: false, // user must tap button!
+                builder: (BuildContext context) {
+                  return AlertDialog(
+                    title: Text('E-mail em uso'),
+                    content: Text('Este e-mail já encontra-se em uso'),
+                    actions: <Widget>[
+                      FlatButton(
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                        child: Text('Ok'),
+                      ),
+                    ],
+                  );
+                });
+            _scaffoldKey.currentState.removeCurrentSnackBar();
+          }
+        }
+      }))
+          .user;
       Firestore.instance.collection('companies').document(user.uid);
       Firestore.instance
           .collection('companies')
           .document(user.uid)
           .setData(userData);
-//      Map<String, dynamic> CategoryData = {
-//        'uidCompany': user.uid,
-//      };
+
       Firestore.instance
           .collection('categories')
           .document(selectedCategory)
@@ -494,19 +492,15 @@ class _NewProfileState extends State<NewProfile> {
         'uidCompany': user.uid,
       });
       print('salvou');
-//      bool success = await _profileBloc.saveCompany(usera);
       _scaffoldKey.currentState.removeCurrentSnackBar();
       _scaffoldKey.currentState.showSnackBar(SnackBar(
         content: Text(
-//          success ? 'Dados atualizados com sucesso!' : 'Erro ao salvar serviço',
           'Perfil Criado',
           style: TextStyle(color: Colors.white),
         ),
         backgroundColor: Colors.green,
         duration: Duration(seconds: 60),
-        onVisible: () {
-          Navigator.of(context).pop();
-        },
+        onVisible: () {},
       ));
     }
   }

@@ -1,5 +1,5 @@
+import 'package:agendei/screens/home_screen.dart';
 import 'package:agendei/screens/newClient_screen.dart';
-import 'package:agendei/tabs/calendars_tab.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -31,21 +31,25 @@ class _NewScheduleScreenState extends State<NewScheduleScreen> {
     QuerySnapshot querySnapshotClients = await Firestore.instance
         .collection('companies')
         .document(user.uid)
-        .collection('clientes')
+        .collection('clients')
         .getDocuments();
     for (int index = 0;
         index < querySnapshotClients.documents.length;
         index++) {
-      DocumentSnapshot client = await Firestore.instance
+       Firestore.instance
           .collection('users')
           .document(querySnapshotClients.documents[index].documentID)
-          .get();
-      setState(() {
-        clientsItems.add(DropdownMenuItem(
-          child: Text(client.data['name']),
-          value: '${client.documentID}',
-        ));
+          .get().then((client){
+            if(client.exists){
+              setState(() {
+                clientsItems.add(DropdownMenuItem(
+                  child: Text(client.data['name']),
+                  value: '${client.documentID}',
+                ));
+              });
+            }
       });
+
     }
     print('empresa:' + user.uid.toString());
     return user.uid.toString();
@@ -190,31 +194,42 @@ class _NewScheduleScreenState extends State<NewScheduleScreen> {
     print('tempo Duracao servico: ' + timeDurationService.toString());
   }
   void verifyOrderExist() async{
-    QuerySnapshot querySnapshot = await Firestore.instance.collection('companies').document(uidCompany).collection('calendars').document(selectedCalendar).collection('orders').where('dateTime', isEqualTo: selectedDate).getDocuments();
+    print('verificando horário disponível...');
+    QuerySnapshot querySnapshot = await Firestore.instance.collection('companies').document(uidCompany).collection('calendars').document(selectedCalendar).collection('orders').where('dateTime', isEqualTo: Timestamp.fromDate(selectedDate)).getDocuments();
     if(querySnapshot.documents.length > 0){
+      print('horario indisponível');
       _showSnack(context, 'Este horário não está disponível, por favor, solicite outro', Colors.red);
     }else{
+      print('horario disponível');
       verifyDate();
 //      saveOrder();
     }
   }
   void verifyDate() async{
-    DocumentSnapshot documentSnapshot = await Firestore.instance.collection('companies').document(uidCompany).collection('caledars').document(selectedCalendar).get();
-    if(documentSnapshot.exists){
-      Timestamp calendarStart = documentSnapshot.data['startTime'];
-      Timestamp calendarEnd = documentSnapshot.data['endTime'];
+    print('procurando calendário: '+selectedCalendar+' da empresa: '+uidCompany+'...');
+
+    DocumentSnapshot calendar = await Firestore.instance.collection('companies').document(uidCompany).collection('calendars').document(selectedCalendar).get();
+    print(calendar.data['check']);
+    if(calendar.exists){
+      print('calendário existe');
+      Timestamp calendarStart = calendar.data['startTime'];
+      Timestamp calendarEnd = calendar.data['endTime'];
       DateTime start = DateTime(selectedDate.year, selectedDate.month, selectedDate.day, calendarStart.toDate().hour, calendarStart.toDate().minute );
       DateTime end = DateTime(selectedDate.year, selectedDate.month, selectedDate.day,calendarEnd.toDate().hour, calendarEnd.toDate().minute );
-      if(selectedDate.isAfter(start) && selectedDate.isBefore(end)){
+      if((selectedDate.isAtSameMomentAs(start) || selectedDate.isAfter(start)) && selectedDate.isBefore(end)){
+        print('horario permitido');
         saveOrder();
       }else{
+        print('horario nao permitido');
         _scaffold.currentState.removeCurrentSnackBar();
         _showSnack(context, 'Horário inválido. Informe um horário entre ${start.hour}:${start.minute} e ${end.hour}:${end.minute}.', Colors.orange);
       }
     }
+    print('calendario nao encontrado');
   }
 
   void saveOrder() async {
+    print('salvando order...');
     _showSnack(context, 'Verificando horários disponíveis...', Colors.orange);
     Timestamp createdAt = Timestamp.fromDate(DateTime.now());
     final Map<String, dynamic> scheduleData = {
@@ -261,6 +276,7 @@ class _NewScheduleScreenState extends State<NewScheduleScreen> {
           .document(documentReference.documentID)
           .setData(scheduleUserData);
     }
+    print('horario salvo');
     return showDialog<void>(
       context: context,
       barrierDismissible: false, // user must tap button!
@@ -272,9 +288,8 @@ class _NewScheduleScreenState extends State<NewScheduleScreen> {
             child: ListBody(
               children: <Widget>[
                 Text(
-                    'Seu horário foi reservado com sucesso. Caso seja necessário remarcar ou cancelar, é possível fazer em até 3 dias úteis antes da data marcada por meio do menu agendamentos.'),
+                    'Agendamento realizado'),
                 Padding(padding: EdgeInsets.only(top: 20)),
-                Text('Agradecemos por utilizar o Agendei :D'),
               ],
             ),
           ),
@@ -286,7 +301,7 @@ class _NewScheduleScreenState extends State<NewScheduleScreen> {
               ),
               onPressed: () {
                 Navigator.of(context).push(
-                    MaterialPageRoute(builder: (context) => CalendarTab()));
+                    MaterialPageRoute(builder: (context) => HomeScreen()));
               },
             ),
           ],
@@ -313,6 +328,8 @@ class _NewScheduleScreenState extends State<NewScheduleScreen> {
       ),
     );
   }
+
+
 
   @override
   void initState() {
@@ -341,11 +358,14 @@ class _NewScheduleScreenState extends State<NewScheduleScreen> {
         ],
       ),
       floatingActionButton: FloatingActionButton.extended(
+        heroTag: '$selectedClient',
         onPressed: () {
-          if(selectedTime != null){
+          if(time != false){
+            _scaffold.currentState.removeCurrentSnackBar();
             verifyOrderExist();
           }else{
             _showSnack(context, 'Selecione um horario para agendamento', Colors.red);
+
           }
         },
         label: Text('Agendar'),
@@ -377,7 +397,7 @@ class _NewScheduleScreenState extends State<NewScheduleScreen> {
                     items: clientsItems,
                     onChanged: (clientValue) {
                       setState(() {
-                        print('cliente selecionado: ' + selectedClient);
+                        print('cliente selecionado: ' + clientValue);
                         selectedClient = clientValue.toString();
                       });
                     },
@@ -400,12 +420,12 @@ class _NewScheduleScreenState extends State<NewScheduleScreen> {
                     'Serviços:',
                     style: TextStyle(color: Colors.black, fontSize: 22),
                   ),
-                  StreamBuilder<QuerySnapshot>(
-                    stream: Firestore.instance
+                  FutureBuilder<QuerySnapshot>(
+                    future: Firestore.instance
                         .collection('companies')
                         .document(uidCompany)
                         .collection('services')
-                        .snapshots(),
+                        .getDocuments(),
                     builder: (context, snapshot) {
                       if (!snapshot.hasData) {
                         return Text('Carregando');

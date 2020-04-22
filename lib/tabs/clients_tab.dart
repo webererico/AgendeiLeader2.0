@@ -52,12 +52,12 @@ class _ClientsTabState extends State<ClientsTab> {
             ),
           ),
         ),
-        FutureBuilder<QuerySnapshot>(
-            future: Firestore.instance
+        StreamBuilder<QuerySnapshot>(
+            stream: Firestore.instance
                 .collection('companies')
                 .document(widget.uidCompany)
-                .collection('clientes')
-                .getDocuments(),
+                .collection('clients')
+                .snapshots(),
             builder: (context, snapshot) {
               if (!snapshot.hasData) {
                 return Center(

@@ -51,10 +51,23 @@ class ProfileBloc extends BlocBase {
     unsavedData['adress'] = text;
   }
 
-  void saveEmail(String text) async {
+  void saveEmail(String text){
     unsavedData['email'] = text;
-    final FirebaseUser user = await FirebaseAuth.instance.currentUser();
-    user.updateEmail(text);
+
+  }
+
+  void savePass(String pass, String email) async {
+    FirebaseUser user = await FirebaseAuth.instance.currentUser();
+    AuthResult authResult = await user.reauthenticateWithCredential(
+      EmailAuthProvider.getCredential(
+        email: user.email,
+        password: pass,
+      ),
+    );
+    if(email != null){
+      authResult.user.updateEmail(email);
+    }
+
   }
 
   void savePhone(String text) {
@@ -76,6 +89,7 @@ class ProfileBloc extends BlocBase {
   void saveUidCategory(String text) {
     unsavedData['uidCategory'] = text;
   }
+
 
   Future<bool> saveCompany(String uidCompany) async {
     _loadingController.add(true);

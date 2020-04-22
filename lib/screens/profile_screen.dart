@@ -1,11 +1,14 @@
 import 'dart:io';
 
 import 'package:agendei/blocs/profile_bloc.dart';
+import 'package:agendei/screens/home_screen.dart';
+import 'package:agendei/tabs/configs_tab.dart';
 import 'package:agendei/validators/profile_validators.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -19,12 +22,16 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> with ProfileValidators {
+  final _formkey2 = GlobalKey<FormState>();
+  final passController = TextEditingController();
+  final rePassController = TextEditingController();
   FirebaseAuth auth = FirebaseAuth.instance;
   String uidCompany = '';
   Future<DocumentSnapshot> snapshot;
   File _image;
   String _uploadedFileURL;
   String newUploaded;
+  String email;
   List<DropdownMenuItem> categoryNames = [];
 
   Future chooseFile() async {
@@ -66,15 +73,19 @@ class _ProfileScreenState extends State<ProfileScreen> with ProfileValidators {
 
   getUID() async {
     final FirebaseUser user = await FirebaseAuth.instance.currentUser();
-    DocumentSnapshot documentSnapshot = await Firestore.instance.collection('companies').document(user.uid).get();
+    DocumentSnapshot documentSnapshot = await Firestore.instance
+        .collection('companies')
+        .document(user.uid)
+        .get();
     setState(() {
       setState(() {
-         selectedCategory = documentSnapshot.data['uidCategory'];
+        selectedCategory = documentSnapshot.data['uidCategory'];
       });
     });
     print(selectedCategory);
-    QuerySnapshot categories = await Firestore.instance.collection('categories').getDocuments();
-    for(int index = 0; index <categories.documents.length; index++){
+    QuerySnapshot categories =
+        await Firestore.instance.collection('categories').getDocuments();
+    for (int index = 0; index < categories.documents.length; index++) {
       categoryNames.add(DropdownMenuItem(
         child: Text(
           categories.documents[index].data['name'],
@@ -82,18 +93,112 @@ class _ProfileScreenState extends State<ProfileScreen> with ProfileValidators {
         value: '${categories.documents[index].documentID}',
       ));
     }
-
     final uidCompany = user.uid.toString();
     return uidCompany;
   }
 
-//  checkCategory() async {
-//    final DocumentSnapshot company = await Firestore.instance
-//        .collection('companies')
-//        .document(uidCompany)
-//        .get();
-//    return company.data['uidCategory'].toString();
-//  }
+  changePass(String pass, String rePass) async {
+    FirebaseUser user = await FirebaseAuth.instance.currentUser();
+    AuthResult authResult = await user.reauthenticateWithCredential(
+      EmailAuthProvider.getCredential(
+        email: user.email,
+        password: pass,
+      ),
+    ).catchError((error) {
+
+      if (error is PlatformException) {
+        if (error.code == 'ERROR_WRONG_PASSWORD') {
+          print('senha errada');
+          Navigator.of(context).pop();
+          _scaffoldKey.currentState.showSnackBar(SnackBar(
+            content: Text('senha fornecida está errada',
+                style: TextStyle(color: Colors.white)),
+            backgroundColor: Colors.red,
+          ));
+        }
+      }
+    });
+    if (rePass != null) {
+      authResult.user.updatePassword(rePass);
+      Navigator.of(context).pop();
+      _scaffoldKey.currentState.showSnackBar(
+        SnackBar(
+          content:
+              Text('Senha alterada', style: TextStyle(color: Colors.white)),
+          backgroundColor: Colors.orange,
+          duration: Duration(seconds: 4),
+          onVisible: () {
+            Navigator.of(context).pushReplacement(
+                MaterialPageRoute(builder: (context) => HomeScreen()));
+          },
+        ),
+      );
+    }
+  }
+
+  Widget newPassword() {
+    showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text('Redefinir nova senha'),
+            content: SingleChildScrollView(
+                child: Form(
+                    key: _formkey2,
+                    child: Column(
+                      children: [
+                        TextFormField(
+                          controller: passController,
+                          decoration: InputDecoration(
+                              hintText: "Senha antiga", icon: Icon(Icons.lock)),
+                          obscureText: true,
+                          validator: (value) {
+                            if (value.isEmpty || value.length < 6) {
+                              return 'Deve conter no minimo 6 letras';
+                            } else {
+                              return null;
+                            }
+                          },
+                        ),
+                        TextFormField(
+                          controller: rePassController,
+                          decoration: InputDecoration(
+                              hintText: "Nova senha",
+                              icon: Icon(Icons.lock_outline)),
+                          obscureText: true,
+                          validator: (value) {
+                            if (value.isEmpty || value.length < 6) {
+                              return 'Deve conter no minimo 6 letras';
+                            } else {
+                              return null;
+                            }
+                          },
+                        )
+                      ],
+                    ))),
+            actions: <Widget>[
+              FlatButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: Text('Cancelar'),
+              ),
+              FlatButton(
+                onPressed: () {
+                  if (_formkey2.currentState.validate()) {
+                    changePass(passController.text, rePassController.text);
+                  }
+                },
+                child: Text(
+                  'Alterar',
+                  style: TextStyle(color: Colors.red),
+                ),
+              )
+            ],
+          );
+        });
+  }
 
   @override
   void initState() {
@@ -115,14 +220,12 @@ class _ProfileScreenState extends State<ProfileScreen> with ProfileValidators {
 
   @override
   Widget build(BuildContext context) {
-
     final _fieldStyle = TextStyle(
       color: Colors.white,
       fontSize: 16.0,
     );
 
     InputDecoration _buildDecoration(String label) {
-
       return InputDecoration(
         labelText: label,
         labelStyle: TextStyle(color: Colors.grey),
@@ -280,6 +383,9 @@ class _ProfileScreenState extends State<ProfileScreen> with ProfileValidators {
                         decoration: _buildDecoration('Email da empresa'),
                         onSaved: _profileBloc.saveEmail,
                         validator: validateEmail,
+                        onChanged: (value) {
+                          email = value;
+                        },
                       ),
                       TextFormField(
                         initialValue: snapshot.data['adress'],
@@ -342,6 +448,26 @@ class _ProfileScreenState extends State<ProfileScreen> with ProfileValidators {
                           ),
                         ],
                       ),
+                      TextFormField(
+                        initialValue: null,
+                        style: _fieldStyle,
+                        decoration: _buildDecoration(
+                            'Informe sua senha para atualizar os dados'),
+                        obscureText: true,
+                        onSaved: (value) {
+                          _profileBloc.savePass(value, email);
+                        },
+                        validator: validadePass,
+                      ),
+                      FlatButton(
+                        child: Text(
+                          'redefinir senha',
+                          style: TextStyle(color: Colors.white),
+                        ),
+                        onPressed: () {
+                          newPassword();
+                        },
+                      )
                     ],
                   );
                 }),
@@ -384,7 +510,8 @@ class _ProfileScreenState extends State<ProfileScreen> with ProfileValidators {
         duration: Duration(seconds: 60),
         onVisible: () {
           Future.delayed(Duration(seconds: 3));
-          Navigator.of(context).pop();
+          Navigator.of(context).pushReplacement(
+              MaterialPageRoute(builder: (context) => HomeScreen()));
         },
       ));
     }

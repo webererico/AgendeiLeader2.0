@@ -224,7 +224,7 @@ class _ServiceScreenState extends State<ServiceScreen> with ServiceValidators {
                                 _serviceBloc.saveDuration(int.parse(newValue));
                               });
                             },
-                            items: <String>['1', '5', '6', '10','12', '15', '20','30']
+                            items: <String>['0', '1', '5', '6', '10','12', '15', '20','30']
                                 .map<DropdownMenuItem<String>>((String value) {
                               return DropdownMenuItem<String>(
                                 value: value,

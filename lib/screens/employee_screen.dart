@@ -212,7 +212,7 @@ class _EmployState extends State<EmployeeScreen> with EmployeeValidators {
                             tag: 'newAvatar',
                             child: snapshot.data['img'] == null
                                 ? CircleAvatar(
-                                  radius: 150,
+                                  radius: 60,
                                 backgroundColor: Colors.grey.withAlpha(100),
                                 child: IconButton(
                                   icon: Icon(
