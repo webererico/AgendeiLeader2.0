@@ -1,10 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 
 class ScheduleTile extends StatefulWidget {
   final String uidCalendar;
   final DocumentSnapshot order;
-
 
   ScheduleTile({this.uidCalendar, this.order, Key key}) : super(key: key);
 
@@ -14,12 +16,23 @@ class ScheduleTile extends StatefulWidget {
 
 class _ScheduleTileState extends State<ScheduleTile> {
   String statusSchedule;
+  String uidCompany;
   var start;
   var finish;
+
+  getUid() async {
+    final FirebaseUser user = await FirebaseAuth.instance.currentUser();
+    return user.uid;
+  }
 
   @override
   void initState() {
     super.initState();
+    getUid().then((result) {
+      setState(() {
+        uidCompany = result;
+      });
+    });
     setState(() {
       statusSchedule = widget.order.data['statusSchedule'];
     });
@@ -38,12 +51,11 @@ class _ScheduleTileState extends State<ScheduleTile> {
         .document(widget.order.documentID)
         .updateData(data);
     print('user-> order -> updated');
-    print('uidCompany'+widget.order.data['uidCompany']);
-    print('uidcalendar'+widget.uidCalendar);
-    print(widget.order.documentID);
+    print('uidcalendar: ' + widget.uidCalendar);
+    print('uid da order: ' + widget.order.documentID);
     Firestore.instance
         .collection('companies')
-        .document(widget.order.data['uidCompany'])
+        .document(uidCompany)
         .collection('calendars')
         .document(widget.uidCalendar)
         .collection('orders')
@@ -54,10 +66,13 @@ class _ScheduleTileState extends State<ScheduleTile> {
     });
   }
 
-  finishService(String status, DateTime finish) async{
+  finishService(String status, DateTime finish, int duration) async {
+
     final Map<String, dynamic> data = {
+//      'createdAt':
       'statusSchedule': status,
       'finishService': Timestamp.fromDate(finish),
+      'duration': duration,
       'evalueationService': null,
       'evalueationEmployee': null
     };
@@ -65,36 +80,60 @@ class _ScheduleTileState extends State<ScheduleTile> {
         .collection('users')
         .document(widget.order.data['uidClient'])
         .collection('orders')
-        .document(widget.order.documentID).get();
-    documentSnapshotUser.data.update('statusSchedule', (value) => status);
-    documentSnapshotUser.data.update('finishService', (value) => Timestamp.fromDate(finish));
-    Firestore.instance.collection('users').document(widget.order.data['uidClient']).collection('orders').document(documentSnapshotUser.documentID).setData(documentSnapshotUser.data);
+        .document(widget.order.documentID)
+        .get();
+//    documentSnapshotUser.data.update('statusSchedule', (value) => status);
+//    documentSnapshotUser.data['finishService'] = Timestamp.fromDate(finish);
+//    documentSnapshotUser.data['duration'] = duration;
+//    Firestore.instance
+//        .collection('users')
+//        .document(widget.order.data['uidClient'])
+//        .collection('orders')
+//        .document(widget.order.documentID)
+//        .delete();
     Firestore.instance
         .collection('users')
         .document(widget.order.data['uidClient'])
         .collection('orders')
-        .document(widget.order.documentID).delete();
-    print('salvou no finishOrders do usuário');
+        .document(documentSnapshotUser.documentID)
+        .updateData(data);
 
+    print('salvou no usuario... servico finalizado');
 
     DocumentSnapshot documentSnapshotCompany = await Firestore.instance
         .collection('companies')
-        .document(widget.order.data['uidCompany'])
+        .document(uidCompany)
         .collection('calendars')
         .document(widget.uidCalendar)
         .collection('orders')
         .document(widget.order.documentID)
         .get();
-    documentSnapshotCompany.data.update('statusSchedule', (value) => status);
-    documentSnapshotCompany.data.update('finishService', (value) => Timestamp.fromDate(finish));
-    Firestore.instance.collection('companies').document(widget.order.data['uidCompany']).collection('services').document(widget.order.data['uidService']).collection('history').document(documentSnapshotCompany.documentID).setData(documentSnapshotCompany.data);
+
     Firestore.instance
         .collection('companies')
-        .document(widget.order.data['uidCompany'])
+        .document(uidCompany)
         .collection('calendars')
         .document(widget.uidCalendar)
         .collection('orders')
-        .document(widget.order.documentID).delete();
+        .document(widget.order.documentID)
+        .delete();
+    Firestore.instance
+        .collection('companies')
+        .document(uidCompany)
+        .collection('services')
+        .document(widget.order.data['uidService'])
+        .collection('history')
+        .document(documentSnapshotCompany.documentID)
+        .setData(documentSnapshotCompany.data);
+    Firestore.instance
+        .collection('companies')
+        .document(uidCompany)
+        .collection('services')
+        .document(widget.order.data['uidService'])
+        .collection('history')
+        .document(documentSnapshotCompany.documentID)
+        .updateData(data);
+
     print('salvou no historico do servico da empresa');
 
     setState(() {
@@ -105,11 +144,42 @@ class _ScheduleTileState extends State<ScheduleTile> {
     });
   }
 
+  getStart() async {
+    DocumentSnapshot documentSnapshot = await Firestore.instance
+        .collection('companies')
+        .document(uidCompany)
+        .collection('calendars')
+        .document(widget.uidCalendar)
+        .collection('orders')
+        .document(widget.order.documentID)
+        .get();
+    if(documentSnapshot.data['startService']!= null){
+      setState(() {
+        start = DateTime.parse(documentSnapshot.data['startService']);
+        print('start: '+start.toString());
+      });
+    }
+
+  }
+
   Future<void> _askedToLead() async {
-    var finish  = new DateTime.now();
-    final _end = Timestamp.fromDate(finish).toDate();
-    final difference = _end.difference(Timestamp.fromDate(start).toDate());
-    switch (await showDialog(
+    DocumentSnapshot documentSnapshot = await Firestore.instance
+        .collection('companies')
+        .document(uidCompany)
+        .collection('calendars')
+        .document(widget.uidCalendar)
+        .collection('orders')
+        .document(widget.order.documentID)
+        .get();
+    if(documentSnapshot.data['startService']!= null){
+        Timestamp time = documentSnapshot.data['startService'];
+        start = time.toDate();
+        print('start: '+start.toString());
+    }
+    var finish = new DateTime.now();
+    final duration = finish.difference(start);
+    print('duracao do servico: ' + duration.toString());
+    return showDialog(
         context: context,
         builder: (BuildContext context) {
           return SimpleDialog(
@@ -119,7 +189,7 @@ class _ScheduleTileState extends State<ScheduleTile> {
               style: TextStyle(fontWeight: FontWeight.bold),
             ),
             children: <Widget>[
-              Text('Duração: ' + difference.inMinutes.toString() + ' minutoss'),
+              Text('Duração: ' + duration.inMinutes.toString() + ' minutos'),
               SizedBox(
                 height: 10,
               ),
@@ -143,7 +213,8 @@ class _ScheduleTileState extends State<ScheduleTile> {
                   color: Colors.red,
                   onPressed: () {
                     print('finalizar serviço');
-                    finishService('finalizado', finish);
+                    finishService('finalizado', finish, duration.inMinutes);
+                    Navigator.of(context).pop();
                   },
                 ),
               ),
@@ -153,8 +224,7 @@ class _ScheduleTileState extends State<ScheduleTile> {
 //              ),
             ],
           );
-        })) {
-    }
+        });
   }
 
   @override
@@ -250,13 +320,13 @@ class _ScheduleTileState extends State<ScheduleTile> {
                 child: FloatingActionButton.extended(
                   heroTag: 'scheduleTime',
                   onPressed: () {
-                    print('alterar estado atendimento');
+                    print('alterar estado atendimento de...');
                     print(widget.order.data['statusSchedule']);
                     if (statusSchedule == 'agendado') {
-                      print('alterar estado atendimento: em andamento');
+                      print('para ... em andamento');
                       startService('em andamento');
                     } else if (statusSchedule == 'em andamento') {
-                      print('alterar estado atendimento: finalizado');
+                      print('para .... finalizado');
                       if (widget.order.data['statusPayment'] == 'pago') {
                         _askedToLead();
                       } else if (widget.order.data['statusPayment'] ==

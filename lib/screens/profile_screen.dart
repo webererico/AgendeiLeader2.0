@@ -2,7 +2,6 @@ import 'dart:io';
 
 import 'package:agendei/blocs/profile_bloc.dart';
 import 'package:agendei/screens/home_screen.dart';
-import 'package:agendei/tabs/configs_tab.dart';
 import 'package:agendei/validators/profile_validators.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';

@@ -27,7 +27,7 @@ class _AllSchedulesTabWidgetState extends State<AllSchedulesTabWidget> {
           .document(user.uid)
           .collection('calendars')
           .document(calendarsList[index].documentID)
-          .collection('orders').where('statusSchedule', isEqualTo: 'agendado')
+          .collection('orders')
           .getDocuments();
       print('quandidade de orders: '+orders.documents.length.toString());
       if(orders.documents.length != 0){
