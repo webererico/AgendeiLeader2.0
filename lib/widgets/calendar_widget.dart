@@ -32,6 +32,8 @@ class _CalendarTabWidgetState extends State<CalendarTabWidget>
   List<DocumentSnapshot> ordersFinal = List<DocumentSnapshot>();
 
   Future<List<DocumentSnapshot>> getCalendarsOrders() async {
+//    _events.clear();
+    print('colocando calendários em lista ...');
     final FirebaseUser user = await FirebaseAuth.instance.currentUser();
     List<DocumentSnapshot> allOrders = List<DocumentSnapshot>();
     QuerySnapshot calendars = await Firestore.instance
@@ -49,36 +51,23 @@ class _CalendarTabWidgetState extends State<CalendarTabWidget>
           .collection('calendars')
           .document(calendarsList[index].documentID)
           .collection('orders')
-          .where('statusSchedule', isEqualTo: 'agendado')
           .getDocuments();
       print('quandidade de orders: ' + orders.documents.length.toString());
-      _events.clear();
       if (orders.documents.length != 0) {
         List<DocumentSnapshot> ordersList = orders.documents;
-        print('entrou');
         for (int i = 0; i < ordersList.length; i++) {
-          allOrders.clear();
           print('order: ' + ordersList[i].documentID);
           Timestamp date = ordersList[i].data['dateTime'];
-          print('data da Order: '+date.toDate().toString());
-
-          print('entrou2');
-          if(_events.containsKey(date.toDate())){
-            print('entrou4');
-            ordersFinal = _events[date.toDate()];
+          print('data da Order: ' + date.toDate().toString());
+          allOrders.clear();
+          if (_events.containsKey(date.toDate())) {
+            ordersFinal = _events[date.toDate()]?? [];
             ordersFinal.add(ordersList[i]);
             allOrders = ordersFinal;
-            ordersFinal.clear();
-          }else{
+          } else {
             allOrders.add(ordersList[i]);
-            print('entrou3');
           }
-          print('entrou5');
-
-          _events.putIfAbsent(date.toDate(), ()=> allOrders);
-
-
-
+          _events.putIfAbsent(date.toDate(), () => allOrders);
         }
       }
       print(_events.toString());
@@ -87,7 +76,6 @@ class _CalendarTabWidgetState extends State<CalendarTabWidget>
     return allOrders;
   }
 
-
   @override
   void initState() {
     initializeDateFormatting();
@@ -95,10 +83,8 @@ class _CalendarTabWidgetState extends State<CalendarTabWidget>
     getCalendarsOrders().then((result) {
       setState(() {
         allOrdersList = result;
-
       });
     });
-
 
     _selectedEvents = _events[_selectedDay] ?? [];
     for (int i = 0; i < _selectedEvents.length; i++) {
@@ -113,20 +99,14 @@ class _CalendarTabWidgetState extends State<CalendarTabWidget>
     _animationController.forward();
   }
 
-
-
-
   void _onDaySelected(DateTime day, List events) {
     print('CALLBACK: _onDaySelected');
     setState(() {
       _selectedDay = day;
-      print('dia selecionado' + _selectedDay.toIso8601String());
-
-    });
-    setState(() {
       getCalendarsOrders();
+      _selectedEvents = events;
+      print('dia selecionado' + _selectedDay.toIso8601String());
     });
-    _selectedEvents = events;
   }
 
   @override
@@ -135,6 +115,7 @@ class _CalendarTabWidgetState extends State<CalendarTabWidget>
     _calendarController.dispose();
     super.dispose();
   }
+
   void _onVisibleDaysChanged(
       DateTime first, DateTime last, CalendarFormat format) {
     print('CALLBACK: _onVisibleDaysChanged');
@@ -193,6 +174,7 @@ class _CalendarTabWidgetState extends State<CalendarTabWidget>
       onCalendarCreated: _onCalendarCreated,
     );
   }
+
   Widget _buildEventList() {
     return ListView.builder(
       shrinkWrap: true,
