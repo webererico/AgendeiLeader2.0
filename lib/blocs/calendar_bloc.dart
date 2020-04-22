@@ -24,10 +24,9 @@ class CalendarBloc extends BlocBase{
       unsavedData = Map.of(calendar.data);
       _createdController.add(true);
     }else{
-//PENSAR NOS CAMPOS QUE VÃO DENTRO DA AGENDA
       unsavedData ={
-//        'title': null,
-//        'days': null,
+        'title': null,
+        'days': null,
 
       };
       _createdController.add(false);

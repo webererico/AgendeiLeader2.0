@@ -1,3 +1,4 @@
+import 'package:agendei/screens/newSchedule_screen.dart';
 import 'package:agendei/tabs/clients_tab.dart';
 import 'package:agendei/widgets/allSchedulesTab_widget.dart';
 import 'package:agendei/widgets/calendar_widget.dart';
@@ -57,8 +58,8 @@ class _SchedulesTabState extends State<SchedulesTab> {
               centerTitle: true,
               actions: [
                 IconButton(
-                    icon: Icon(Icons.refresh), onPressed: (){
-//                    Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context)=> SchedulesTab()));
+                    icon: Icon(Icons.add), onPressed: (){
+                    Navigator.of(context).push(MaterialPageRoute(builder: (context)=> NewScheduleScreen()));
                 }
                 )
               ],

@@ -19,9 +19,7 @@ class CalendarsTile extends StatelessWidget {
     );
   }
 
-  Widget _sub() {
-//    String startTime = calendar.data['startTime'].toString();
-
+  Widget _sub(DateTime start, DateTime end) {
     return Column(
       children: <Widget>[
         Row(
@@ -45,8 +43,8 @@ class CalendarsTile extends StatelessWidget {
         ),
         Row(
           children: <Widget>[
-            Text('Início às: ' + calendar.data['startTime']),
-            Text(' com Término às: ' + calendar.data['endTime']),
+            Text('Início às: ${start.hour}:${start.minute}'),
+            Text(' com Término às: ${end.hour}:${end.minute}'),
           ],
         )
       ],
@@ -55,6 +53,8 @@ class CalendarsTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    Timestamp start = calendar.data['startTime'];
+    Timestamp end = calendar.data['endTime'];
     return Padding(
         padding: EdgeInsets.all(7.0),
         child: Card(
@@ -67,7 +67,7 @@ class CalendarsTile extends StatelessWidget {
                     fontSize: 20.0,
                   ),
                 ),
-                subtitle: _sub(),
+                subtitle: _sub(start.toDate(), end.toDate()),
               ),
               Divider(),
               ButtonBar(

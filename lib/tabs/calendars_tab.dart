@@ -31,17 +31,18 @@ class _CalendarTabState extends State<CalendarTab>
     
   }
 
+
   @override
   Widget build(BuildContext context) {
     super.build(context);
     return Scaffold(
       backgroundColor: Colors.grey[850],
-      body: FutureBuilder<QuerySnapshot>(
-          future: Firestore.instance
+      body: StreamBuilder<QuerySnapshot>(
+          stream: Firestore.instance
               .collection('companies')
               .document(uid)
               .collection('calendars')
-              .getDocuments(),
+              .snapshots(),
           builder: (context, snapshot) {
             if (!snapshot.hasData) {
               return Center(

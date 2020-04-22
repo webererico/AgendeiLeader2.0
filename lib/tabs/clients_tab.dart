@@ -42,7 +42,7 @@ class _ClientsTabState extends State<ClientsTab> {
             style: TextStyle(color: Colors.black),
             decoration: InputDecoration(
               fillColor: Colors.grey,
-              hintText: 'Pesquisar cliente',
+              hintText: 'Buscar cliente',
               hintStyle: TextStyle(color: Colors.black),
               icon: Icon(
                 Icons.search,

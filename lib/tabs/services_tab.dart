@@ -33,12 +33,12 @@ class _ServicesTabState extends State<ServicesTab> with AutomaticKeepAliveClient
     super.build(context);
     return Scaffold(
       backgroundColor: Colors.grey[850],
-      body: FutureBuilder<QuerySnapshot>(
-          future: Firestore.instance
+      body: StreamBuilder<QuerySnapshot>(
+          stream: Firestore.instance
               .collection('companies')
               .document(uid)
               .collection('services')
-              .getDocuments(),
+              .snapshots(),
           builder: (context, snapshot) {
             if (!snapshot.hasData) {
               return Center(

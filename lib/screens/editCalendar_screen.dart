@@ -35,12 +35,13 @@ class _EditCalendarScreenState extends State<EditCalendarScreen> {
   bool sab = false;
   bool dom = false;
   bool check = false;
-  TimeOfDay time = TimeOfDay.now();
-  TimeOfDay startTime = TimeOfDay.now();
-  TimeOfDay endTime = TimeOfDay.now();
-  TimeOfDay picked;
-  String lastEndTime;
-  String lastStartTime;
+  bool changed = false;
+  DateTime time = DateTime.now();
+  DateTime startTime;
+  DateTime endTime;
+  DateTime picked;
+  DateTime lastEndTime;
+  DateTime lastStartTime;
 
   @override
   void initState() {
@@ -60,6 +61,8 @@ class _EditCalendarScreenState extends State<EditCalendarScreen> {
         .collection('calendars')
         .document(widget.uidCalendar)
         .get();
+    Timestamp endTime = calendar.data['endTime'];
+    Timestamp startTime = calendar.data['startTime'];
     setState(() {
       nameController.text = calendar.data['name'];
       selectedEmployee = calendar.data['uidEmployee'];
@@ -72,32 +75,42 @@ class _EditCalendarScreenState extends State<EditCalendarScreen> {
       sab = calendar.data['sab'];
       dom = calendar.data['dom'];
       check = calendar.data['check'];
-      lastEndTime = calendar.data['endTime'];
-      lastStartTime = calendar.data['startTime'];
+      lastEndTime = endTime.toDate();
+      lastStartTime = startTime.toDate();
     });
   }
 
-  Future<Null> selectStartTime(BuildContext context) async {
-    picked = await showTimePicker(context: context, initialTime: startTime);
-    if (picked != null && picked != time) {
-      setState(() {
-        lastStartTime = null;
-        startTime = picked;
+  double _kPickerSheetHeight = 300.0;
 
-      });
-    }
-  }
-
-  Future<Null> selectEndTime(BuildContext context) async {
-    picked = await showTimePicker(context: context, initialTime: endTime);
-    if (picked != null && picked != time) {
-      setState(() {
-        endTime = picked;
-        lastEndTime = null;
-      });
-    } else {
-      endTime = null;
-    }
+  Widget _buildBottomPicker(Widget picker) {
+    return Container(
+      width: MediaQuery.of(context).size.width,
+      height: _kPickerSheetHeight,
+      padding: const EdgeInsets.only(top: 6.0),
+      color: CupertinoColors.white,
+      child: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              FlatButton(
+                  textColor: Colors.blueAccent,
+                  child: Text(
+                    'OK',
+                  ),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  }),
+            ],
+          ),
+          Container(
+            width: 140,
+            height: 140,
+            child: picker,
+          )
+        ],
+      ),
+    );
   }
 
   @override
@@ -107,9 +120,8 @@ class _EditCalendarScreenState extends State<EditCalendarScreen> {
       backgroundColor: Colors.grey[850],
       appBar: AppBar(
         backgroundColor: Colors.blueAccent,
-        title: Text('Criar novo calendário'),
+        title: Text('Editar calendário'),
         actions: <Widget>[
-
           IconButton(
             icon: Icon(Icons.delete_forever),
             onPressed: () {
@@ -147,7 +159,9 @@ class _EditCalendarScreenState extends State<EditCalendarScreen> {
                   for (int i = 0; i < snapshot.data.documents.length; i++) {
                     DocumentSnapshot service = snapshot.data.documents[i];
                     serviceItems.add(DropdownMenuItem(
-                      child: Text(service.data['name'], ),
+                      child: Text(
+                        service.data['name'],
+                      ),
                       value: '${service.documentID}',
                     ));
                   }
@@ -382,44 +396,65 @@ class _EditCalendarScreenState extends State<EditCalendarScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: <Widget>[
-                      lastStartTime == null
-                          ? Text(
-                              time == startTime
-                                  ? 'INÍCIO'
-                                  : (startTime.hour.toString() +
-                                      ':' +
-                                      startTime.minute.toString()),
-                              style: TextStyle(color: Colors.white),
-                            )
-                          : Text(lastStartTime,style: TextStyle(color: Colors.white)),
+                    lastStartTime != null ? Text('${lastStartTime.hour}:${lastStartTime.minute}',
+                        style: TextStyle(color: Colors.white)): Text('INÍCIO'),
                     IconButton(
                         icon: Icon(
-                          Icons.timer,
+                          Icons.access_time,
                           color: Colors.white,
                         ),
                         onPressed: () {
-//                      return Data();
-                          selectStartTime(context);
+                          showCupertinoModalPopup<void>(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return _buildBottomPicker(
+                                CupertinoDatePicker(
+                                  initialDateTime:
+                                      DateTime(2020, 4, 22, lastStartTime.hour, lastStartTime.minute),
+                                  minuteInterval: 30,
+                                  use24hFormat: true,
+                                  mode: CupertinoDatePickerMode.time,
+                                  onDateTimeChanged: (value) {
+                                    setState(() {
+                                      startTime = value;
+                                      lastStartTime  = value;
+                                      changed = true;
+                                    });
+                                  },
+                                ),
+                              );
+                            },
+                          );
                         }),
-                    lastEndTime == null
-                        ? Text(
-                            time == endTime
-                                ? 'FIM'
-                                : (endTime.hour.toString() +
-                                    ':' +
-                                    endTime.minute.toString()),
-                            style: TextStyle(color: Colors.white),
-                          )
-                        : Text(lastEndTime, style: TextStyle(color:Colors.white)),
+                   lastEndTime != null ? Text('${lastEndTime.hour}:${lastEndTime.minute}',
+                        style: TextStyle(color: Colors.white)): Text('FIM'),
                     IconButton(
                       icon: Icon(
                         Icons.timer,
                         color: Colors.white,
                       ),
                       onPressed: () {
-//                      return Data();
-                        selectEndTime(context);
-                      },
+                        showCupertinoModalPopup<void>(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return _buildBottomPicker(
+                              CupertinoDatePicker(
+                                initialDateTime:
+                                DateTime(2020, 4, 22, lastEndTime.hour, lastEndTime.minute),
+                                minuteInterval: 30,
+                                use24hFormat: true,
+                                mode: CupertinoDatePickerMode.time,
+                                onDateTimeChanged: (value) {
+                                  setState(() {
+                                    endTime = value;
+                                    lastEndTime  = value;
+                                    changed = true;
+                                  });
+                                },
+                              ),
+                            );
+                          },
+                        );                      },
                     ),
                   ],
                 ),
@@ -434,7 +469,8 @@ class _EditCalendarScreenState extends State<EditCalendarScreen> {
                     Flexible(
                       child: Text(
                         'Permitir mais de um agendamento no mesmo horário?',
-                        style: TextStyle(fontSize: 20, color: Colors.white),),
+                        style: TextStyle(fontSize: 20, color: Colors.white),
+                      ),
                     ),
                     Checkbox(
                       value: check,
@@ -453,28 +489,25 @@ class _EditCalendarScreenState extends State<EditCalendarScreen> {
         ),
       ),
       floatingActionButton: FloatingActionButton.extended(
-          onPressed: (){
-            Map<String, dynamic> data = {
-              'name': nameController.text,
-              'uidService': selectedService,
-              'uidEmployee': selectedEmployee,
-              'startTime': lastStartTime == null ? startTime.hour.toString() +
-                  ':' +
-                  startTime.minute.toString() : lastStartTime,
-              'endTime': lastEndTime == null ?
-              endTime.hour.toString() + ':' + endTime.minute.toString() : lastEndTime,
-              'seg': seg,
-              'ter': ter,
-              'qua': qua,
-              'qui': qui,
-              'sex': sex,
-              'sab': sab,
-              'dom': dom,
-              'check': check
-            };
-            saveCalendar(data);
-          },
-          label: Text('Atualizar'),
+        onPressed: () {
+          Map<String, dynamic> data = {
+            'name': nameController.text,
+            'uidService': selectedService,
+            'uidEmployee': selectedEmployee,
+            'startTime': Timestamp.fromDate(lastStartTime),
+            'endTime': Timestamp.fromDate(lastEndTime),
+            'seg': seg,
+            'ter': ter,
+            'qua': qua,
+            'qui': qui,
+            'sex': sex,
+            'sab': sab,
+            'dom': dom,
+            'check': check
+          };
+          saveCalendar(data);
+        },
+        label: Text('Atualizar'),
         icon: Icon(Icons.check),
       ),
     );
@@ -482,43 +515,62 @@ class _EditCalendarScreenState extends State<EditCalendarScreen> {
 
   void saveCalendar(Map<String, dynamic> data) async {
     if (_formKey.currentState.validate()) {
-      print('salvando calendário');
-      _formKey.currentState.save();
-      _scaffoldKey.currentState.showSnackBar(SnackBar(
-        content: Text(
-          'Criando novo calendário da empresa...',
-          style: TextStyle(color: Colors.white),
-        ),
-        backgroundColor: Colors.blueAccent,
-        duration: Duration(minutes: 1),
-      ));
-      await Firestore.instance
-          .collection('companies')
-          .document(widget.uidCompany)
-          .collection('calendars')
-          .document(widget.uidCalendar).updateData(data);
-      print('salvou');
-//      bool success = await _profileBloc.saveCompany(usera);
-      _scaffoldKey.currentState.removeCurrentSnackBar();
-      _scaffoldKey.currentState.showSnackBar(SnackBar(
-        content: Text(
-//          success ? 'Dados atualizados com sucesso!' : 'Erro ao salvar serviço',
-          'passou',
-          style: TextStyle(color: Colors.white),
-        ),
-        backgroundColor: Colors.green,
-        duration: Duration(seconds: 60),
-        onVisible: () {
+      if(lastStartTime.isBefore(lastEndTime)){
+        await Firestore.instance
+            .collection('companies')
+            .document(widget.uidCompany)
+            .collection('calendars')
+            .document(widget.uidCalendar)
+            .updateData(data);
+        print('salvou');
+        print('salvando calendário');
+        _formKey.currentState.save();
+        _scaffoldKey.currentState.showSnackBar(SnackBar(
+          content: Text(
+            'Atualizando calendário...',
+            style: TextStyle(color: Colors.white),
+          ),
+          backgroundColor: Colors.orange,
+          duration: Duration(minutes: 1),
+          onVisible: () {
           Navigator.of(context).pop();
-        },
-      ));
+          },
+        ));
+        await Firestore.instance
+            .collection('companies')
+            .document(widget.uidCompany)
+            .collection('calendars')
+            .document(widget.uidCalendar)
+            .updateData(data);
+        print('salvou');
+        _scaffoldKey.currentState.removeCurrentSnackBar(
+        );
+      }else{
+        _scaffoldKey.currentState.showSnackBar(SnackBar(
+          content: Text(
+            'O horário de início deve ser anterior ao de final...',
+            style: TextStyle(color: Colors.white),
+          ),
+          backgroundColor: Colors.red,
+          duration: Duration(minutes: 1),
+        ));
+      }
+
     }
   }
 
-  void deleteCalendar() async{
-    Firestore.instance.collection('companies').document(widget.uidCompany).collection('calendars').document(widget.uidCalendar).delete();
+  void deleteCalendar() async {
+    Firestore.instance
+        .collection('companies')
+        .document(widget.uidCompany)
+        .collection('calendars')
+        .document(widget.uidCalendar)
+        .delete();
     _scaffoldKey.currentState.showSnackBar(SnackBar(
-      content: Text('Apagando calendário permanentemente', style: TextStyle(color: Colors.white),),
+      content: Text(
+        'Apagando calendário permanentemente',
+        style: TextStyle(color: Colors.white),
+      ),
       elevation: 2.0,
       duration: Duration(seconds: 3),
       backgroundColor: Colors.orange,

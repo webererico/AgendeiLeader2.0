@@ -36,8 +36,8 @@ class _EmployeeTabState extends State<EmployeeTab> with AutomaticKeepAliveClient
     super.build(context);
     return Scaffold(
       backgroundColor: Colors.grey[850],
-      body: FutureBuilder<QuerySnapshot>(
-        future: Firestore.instance.collection('companies').document(uid).collection('employees').getDocuments(),
+      body: StreamBuilder<QuerySnapshot>(
+        stream: Firestore.instance.collection('companies').document(uid).collection('employees').snapshots(),
           builder: (context, snapshot){
             if(!snapshot.hasData){
               return Center(
@@ -54,9 +54,6 @@ class _EmployeeTabState extends State<EmployeeTab> with AutomaticKeepAliveClient
                       uidCompany: uid,
                       employees: snapshot.data.documents[index],
                     );
-
-//                      (snapshot.data.documents[index]), (uid),
-//                    );
                   }
               );
             }

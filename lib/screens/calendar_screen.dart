@@ -25,10 +25,16 @@ class _CalendarScreenState extends State<CalendarScreen> {
   bool sab = false;
   bool dom = false;
   bool check = false;
-  TimeOfDay time = TimeOfDay.now();
-  TimeOfDay startTime = TimeOfDay.now();
-  TimeOfDay endTime = TimeOfDay.now();
+  bool name = true;
+  bool service = false;
+  bool employee = false;
+  bool day = false;
+  bool timers = false;
+  DateTime time;
+  DateTime startTime;
+  DateTime endTime;
   TimeOfDay picked;
+  double _kPickerSheetHeight = 300.0;
 
   @override
   void initState() {
@@ -46,26 +52,44 @@ class _CalendarScreenState extends State<CalendarScreen> {
     return uidCompany;
   }
 
-  Future<Null> selectStartTime(BuildContext context) async {
-    picked = await showTimePicker(context: context, initialTime: startTime);
-    if (picked != null && picked != time) {
-      setState(() {
-        startTime = picked;
-        print(startTime);
-      });
-    }
-  }
-
-  Future<Null> selectEndTime(BuildContext context) async {
-    picked = await showTimePicker(context: context, initialTime: endTime);
-    if (picked != null && picked != time) {
-      setState(() {
-        endTime = picked;
-        print(endTime);
-      });
-    } else {
-      endTime = null;
-    }
+  Widget _buildBottomPicker(Widget picker) {
+    return Container(
+      width: MediaQuery.of(context).size.width,
+      height: _kPickerSheetHeight,
+      padding: const EdgeInsets.only(top: 6.0),
+      color: CupertinoColors.white,
+      child: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              FlatButton(
+                child: Text(
+                  'cancelar',
+                  style: TextStyle(color: Colors.red),
+                ),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+              FlatButton(
+                  textColor: Colors.blueAccent,
+                  child: Text(
+                    'confirmar',
+                  ),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  }),
+            ],
+          ),
+          Container(
+            width: 140,
+            height: 140,
+            child: picker,
+          )
+        ],
+      ),
+    );
   }
 
   @override
@@ -77,18 +101,15 @@ class _CalendarScreenState extends State<CalendarScreen> {
         backgroundColor: Colors.blueAccent,
         title: Text('Criar novo calendário'),
         actions: <Widget>[
-          IconButton(
+          endTime != null ? IconButton(
             icon: Icon(Icons.save),
             onPressed: () {
               Map<String, dynamic> data = {
                 'name': _nameController.text,
                 'uidService': selectedService,
                 'uidEmployee': selectedEmployee,
-                'startTime': startTime.hour.toString() +
-                    ':' +
-                    startTime.minute.toString(),
-                'endTime':
-                    endTime.hour.toString() + ':' + endTime.minute.toString(),
+                'startTime': Timestamp.fromDate(startTime),
+                'endTime': Timestamp.fromDate(endTime),
                 'seg': seg,
                 'ter': ter,
                 'qua': qua,
@@ -100,6 +121,9 @@ class _CalendarScreenState extends State<CalendarScreen> {
               };
               saveCalendar(data);
             },
+          ): IconButton(
+              icon: Icon(Icons.save),
+              onPressed:  null,
           ),
         ],
       ),
@@ -116,124 +140,136 @@ class _CalendarScreenState extends State<CalendarScreen> {
                   labelStyle: TextStyle(color: Colors.white),
                   fillColor: Colors.white,
                   hoverColor: Colors.white),
+              onChanged: (value){
+                _nameController.text = value;
+                name = true;
+              },
             ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                StreamBuilder<QuerySnapshot>(
-                  stream: Firestore.instance
-                      .collection('companies')
-                      .document(uidCompany)
-                      .collection('services')
-                      .snapshots(),
-                  builder: (context, snapshot) {
-                    if (!snapshot.hasData) {
-                      return Text('Carregando');
-                    } else {
-                      List<DropdownMenuItem> serviceItems = [];
-                      for (int i = 0; i < snapshot.data.documents.length; i++) {
-                        DocumentSnapshot service = snapshot.data.documents[i];
-                        serviceItems.add(DropdownMenuItem(
-                          child: Text(
-                            service.data['name'],
-                          ),
-                          value: '${service.documentID}',
-                        ));
-                      }
-                      return Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: <Widget>[
-                          Icon(
-                            Icons.list,
-                            size: 25.0,
-                            color: Colors.white,
-                          ),
-                          SizedBox(
-                            width: 50.0,
-                          ),
-                          DropdownButton(
-                            items: serviceItems,
-                            onChanged: (serviceValue) {
-                              setState(() {
-                                selectedService = serviceValue;
-                              });
-                            },
-                            value: selectedService,
+            Visibility(
+              visible: name == true ? true :false,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  StreamBuilder<QuerySnapshot>(
+                    stream: Firestore.instance
+                        .collection('companies')
+                        .document(uidCompany)
+                        .collection('services')
+                        .snapshots(),
+                    builder: (context, snapshot) {
+                      if (!snapshot.hasData) {
+                        return Text('Carregando');
+                      } else {
+                        List<DropdownMenuItem> serviceItems = [];
+                        for (int i = 0; i < snapshot.data.documents.length; i++) {
+                          DocumentSnapshot service = snapshot.data.documents[i];
+                          serviceItems.add(DropdownMenuItem(
+                            child: Text(
+                              service.data['name'],
+                            ),
+                            value: '${service.documentID}',
+                          ));
+                        }
+                        return Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: <Widget>[
+                            Icon(
+                              Icons.list,
+                              size: 25.0,
+                              color: Colors.white,
+                            ),
+                            SizedBox(
+                              width: 50.0,
+                            ),
+                            DropdownButton(
+                              items: serviceItems,
+                              onChanged: (serviceValue) {
+                                setState(() {
+                                  selectedService = serviceValue;
+                                  service = true;
+                                });
+                              },
+                              value: selectedService,
 //                            style: TextStyle(color: Colors.black),
-                            isExpanded: false,
-                            hint: new Text(
-                              'Escolha o serviço',
-                              style: TextStyle(color: Colors.white),
+                              isExpanded: false,
+                              hint: new Text(
+                                'Escolha o serviço',
+                                style: TextStyle(color: Colors.white),
+                              ),
                             ),
-                          ),
-                        ],
-                      );
-                    }
-                  },
-                ),
-                IconButton(
-                    icon: Icon(
-                      Icons.control_point,
-                      color: Colors.white,
-                    ),
-                    onPressed: () {}),
-              ],
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: <Widget>[
-                StreamBuilder<QuerySnapshot>(
-                  stream: Firestore.instance
-                      .collection('companies')
-                      .document(uidCompany)
-                      .collection('employees')
-                      .snapshots(),
-                  builder: (context, snapshot) {
-                    if (!snapshot.hasData) {
-                      return Text('Carregando');
-                    } else {
-                      List<DropdownMenuItem> employeeItems = [];
-                      for (int i = 0; i < snapshot.data.documents.length; i++) {
-                        DocumentSnapshot employee = snapshot.data.documents[i];
-                        employeeItems.add(DropdownMenuItem(
-                          child: Text(
-                            employee.data['fullName'],
-                          ),
-                          value: '${employee.documentID}',
-                        ));
+                          ],
+                        );
                       }
-                      return Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: <Widget>[
-                          Icon(
-                            Icons.person,
-                            size: 25.0,
-                            color: Colors.white,
-                          ),
-                          SizedBox(
-                            width: 50.0,
-                          ),
-                          DropdownButton(
-                            items: employeeItems,
-                            onChanged: (employeeValue) {
-                              setState(() {
-                                selectedEmployee = employeeValue;
-                              });
-                            },
-                            value: selectedEmployee,
-//                            style: TextStyle(color: Colors.white),
-                            isExpanded: false,
-                            hint: new Text(
-                              '       Escolha o funcionário',
-                              style: TextStyle(color: Colors.white),
+                    },
+                  ),
+                  IconButton(
+                      icon: Icon(
+                        Icons.control_point,
+                        color: Colors.white,
+                      ),
+                      onPressed: () {}),
+                ],
+              ),
+            ),
+            Visibility(
+              visible: service == true? true : false,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: <Widget>[
+                  StreamBuilder<QuerySnapshot>(
+                    stream: Firestore.instance
+                        .collection('companies')
+                        .document(uidCompany)
+                        .collection('employees')
+                        .snapshots(),
+                    builder: (context, snapshot) {
+                      if (!snapshot.hasData) {
+                        return Text('Carregando');
+                      } else {
+                        List<DropdownMenuItem> employeeItems = [];
+                        for (int i = 0; i < snapshot.data.documents.length; i++) {
+                          DocumentSnapshot employee = snapshot.data.documents[i];
+                          employeeItems.add(DropdownMenuItem(
+                            child: Text(
+                              employee.data['fullName'],
                             ),
-                          ),
-                        ],
-                      );
-                    }
-                  },
-                ),
-              ],
+                            value: '${employee.documentID}',
+                          ));
+                        }
+                        return Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: <Widget>[
+                            Icon(
+                              Icons.person,
+                              size: 25.0,
+                              color: Colors.white,
+                            ),
+                            SizedBox(
+                              width: 50.0,
+                            ),
+                            DropdownButton(
+                              items: employeeItems,
+                              onChanged: (employeeValue) {
+                                setState(() {
+                                  selectedEmployee = employeeValue;
+                                  employee= true;
+                                });
+                              },
+                              value: selectedEmployee,
+//                            style: TextStyle(color: Colors.white),
+                              isExpanded: false,
+                              hint: new Text(
+                                '       Escolha o funcionário',
+                                style: TextStyle(color: Colors.white),
+                              ),
+                            ),
+                          ],
+                        );
+                      }
+                    },
+                  ),
+                ],
+              ),
             ),
             SizedBox(
               height: 20.0,
@@ -244,208 +280,264 @@ class _CalendarScreenState extends State<CalendarScreen> {
             SizedBox(
               height: 10.0,
             ),
-            Text(
-              'Dias da semana da Agenda',
-              style: TextStyle(color: Colors.white, fontSize: 20.0),
-              textAlign: TextAlign.center,
+            Visibility(
+              visible: employee == true ? true : false,
+              child: Text(
+                'Dias da semana da Agenda',
+                style: TextStyle(color: Colors.white, fontSize: 20.0),
+                textAlign: TextAlign.center,
+              ),
             ),
             SizedBox(
               height: 20.0,
             ),
-            Column(
-              children: <Widget>[
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: <Widget>[
-                    Text(
-                      'SEG',
-                      style: TextStyle(color: Colors.white),
-                    ),
-                    Text(
-                      'TER',
-                      style: TextStyle(color: Colors.white),
-                    ),
-                    Text(
-                      'QUA',
-                      style: TextStyle(color: Colors.white),
-                    ),
-                    Text(
-                      'QUI',
-                      style: TextStyle(color: Colors.white),
-                    ),
-                    Text(
-                      'SEX',
-                      style: TextStyle(color: Colors.white),
-                    ),
-                    Text(
-                      'SAB',
-                      style: TextStyle(color: Colors.white),
-                    ),
-                    Text(
-                      'DOM',
-                      style: TextStyle(color: Colors.white),
-                    ),
-                  ],
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: <Widget>[
-                    Checkbox(
-//              title: Text(
-//                'SEG',
-//                style: TextStyle(color: Colors.white),
-//              ),
-                      activeColor: Colors.blueAccent,
-                      onChanged: (bool resp) {
-                        print('Segunda: ' + resp.toString());
-                        setState(() {
-                          seg = resp;
-                        });
-                      },
-                      value: seg,
-                      checkColor: Colors.white,
-                    ),
-                    Checkbox(
-                      activeColor: Colors.blueAccent,
-                      onChanged: (bool resp) {
-                        print('Terca: ' + resp.toString());
-                        setState(() {
-                          ter = resp;
-                        });
-                      },
-                      value: ter,
-                      checkColor: Colors.white,
-                    ),
-                    Checkbox(
-                      activeColor: Colors.blueAccent,
-                      onChanged: (bool resp) {
-                        print('Quarta: ' + resp.toString());
-                        setState(() {
-                          qua = resp;
-                        });
-                      },
-                      value: qua,
-                      checkColor: Colors.white,
-                    ),
-                    Checkbox(
-                      activeColor: Colors.blueAccent,
-                      onChanged: (bool resp) {
-                        print('Quinta: ' + resp.toString());
-                        setState(() {
-                          qui = resp;
-                        });
-                      },
-                      value: qui,
-                      checkColor: Colors.white,
-                    ),
-                    Checkbox(
-                      activeColor: Colors.blueAccent,
-                      onChanged: (bool resp) {
-                        print('Sexta: ' + resp.toString());
-                        setState(() {
-                          sex = resp;
-                        });
-                      },
-                      value: sex,
-                      checkColor: Colors.white,
-                    ),
-                    Checkbox(
-                      activeColor: Colors.blueAccent,
-                      onChanged: (bool resp) {
-                        print('Sabado: ' + resp.toString());
-                        setState(() {
-                          sab = resp;
-                        });
-                      },
-                      value: sab,
-                      checkColor: Colors.white,
-                    ),
-                    Checkbox(
-                      activeColor: Colors.blueAccent,
-                      onChanged: (bool resp) {
-                        print('Domingo: ' + resp.toString());
-                        setState(() {
-                          dom = resp;
-                        });
-                      },
-                      value: dom,
-                      checkColor: Colors.white,
-                    ),
-                  ],
-                ),
-                SizedBox(height: 45),
-                Divider(
-                  color: Colors.white,
-                ),
-                Text(
-                  'Horário de Funcionamento',
-                  style: TextStyle(color: Colors.white, fontSize: 20.0),
-                  textAlign: TextAlign.center,
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    Text(
-                      time == startTime
-                          ? 'INÍCIO'
-                          : (startTime.hour.toString() +
-                              ':' +
-                              startTime.minute.toString()),
-                      style: TextStyle(color: Colors.white),
-                    ),
-                    IconButton(
-                        icon: Icon(
-                          Icons.timer,
-                          color: Colors.white,
-                        ),
-                        onPressed: () {
-//                      return Data();
-                          selectStartTime(context);
-                        }),
-                    Text(
-                      time == endTime
-                          ? 'FIM'
-                          : (endTime.hour.toString() +
-                              ':' +
-                              endTime.minute.toString()),
-                      style: TextStyle(color: Colors.white),
-                    ),
-                    IconButton(
-                      icon: Icon(
-                        Icons.timer,
-                        color: Colors.white,
+            Visibility(
+              visible: employee == true? true : false,
+              child: Column(
+                children: <Widget>[
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: <Widget>[
+                      Text(
+                        'SEG',
+                        style: TextStyle(color: Colors.white),
                       ),
-                      onPressed: () {
-                        selectEndTime(context);
-                      },
+                      Text(
+                        'TER',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                      Text(
+                        'QUA',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                      Text(
+                        'QUI',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                      Text(
+                        'SEX',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                      Text(
+                        'SAB',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                      Text(
+                        'DOM',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    ],
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: <Widget>[
+                      Checkbox(
+                        activeColor: Colors.blueAccent,
+                        onChanged: (bool resp) {
+                          print('Segunda: ' + resp.toString());
+                          setState(() {
+                            seg = resp;
+                            day = true;
+                          });
+                        },
+                        value: seg,
+                        checkColor: Colors.white,
+                      ),
+                      Checkbox(
+                        activeColor: Colors.blueAccent,
+                        onChanged: (bool resp) {
+                          print('Terca: ' + resp.toString());
+                          setState(() {
+                            ter = resp;
+                            day = true;
+                          });
+                        },
+                        value: ter,
+                        checkColor: Colors.white,
+                      ),
+                      Checkbox(
+                        activeColor: Colors.blueAccent,
+                        onChanged: (bool resp) {
+                          print('Quarta: ' + resp.toString());
+                          setState(() {
+                            qua = resp;
+                            day = true;
+                          });
+                        },
+                        value: qua,
+                        checkColor: Colors.white,
+                      ),
+                      Checkbox(
+                        activeColor: Colors.blueAccent,
+                        onChanged: (bool resp) {
+                          print('Quinta: ' + resp.toString());
+                          setState(() {
+                            qui = resp;
+                            day = true;
+                          });
+                        },
+                        value: qui,
+                        checkColor: Colors.white,
+                      ),
+                      Checkbox(
+                        activeColor: Colors.blueAccent,
+                        onChanged: (bool resp) {
+                          print('Sexta: ' + resp.toString());
+                          setState(() {
+                            sex = resp;
+                            day = true;
+                          });
+                        },
+                        value: sex,
+                        checkColor: Colors.white,
+                      ),
+                      Checkbox(
+                        activeColor: Colors.blueAccent,
+                        onChanged: (bool resp) {
+                          print('Sabado: ' + resp.toString());
+                          setState(() {
+                            sab = resp;
+                            day = true;
+                          });
+                        },
+                        value: sab,
+                        checkColor: Colors.white,
+                      ),
+                      Checkbox(
+                        activeColor: Colors.blueAccent,
+                        onChanged: (bool resp) {
+                          print('Domingo: ' + resp.toString());
+                          setState(() {
+                            dom = resp;
+                            day = true;
+                          });
+                        },
+                        value: dom,
+                        checkColor: Colors.white,
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 45),
+                  Visibility(
+                    visible:  day == true? true : false,
+                    child: Divider(
+                      color: Colors.white,
                     ),
-                  ],
-                ),
-                SizedBox(
-                  height: 10.0,
-                ),
-                Divider(
-                  color: Colors.white,
-                ),
-                Row(
-                  children: [
-                    Flexible(
-                      child: Text(
-                        'Permitir mais de um agendamento no mesmo horário?',
-                      style: TextStyle(fontSize: 20, color: Colors.white),),
+                  ),
+                  Visibility(
+                    visible: day == true ? true : false,
+                    child: Text(
+                      'Horário de Funcionamento',
+                      style: TextStyle(color: Colors.white, fontSize: 20.0),
+                      textAlign: TextAlign.center,
                     ),
-                    Checkbox(
-                      value: check,
-                      activeColor: Colors.blueAccent,
-                      onChanged: (value) {
-                        setState(() {
-                          check = value;
-                        });
-                      },
-                    )
-                  ],
-                )
-              ],
+                  ),
+                  Visibility(
+                    visible: day == true? true : false,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: <Widget>[
+                        Text(
+                          time == startTime
+                              ? 'INÍCIO'
+                              : (startTime.hour.toString() +
+                                  ':' +
+                                  startTime.minute.toString()),
+                          style: TextStyle(color: Colors.white),
+                        ),
+                        IconButton(
+                            icon: Icon(
+                              Icons.access_time,
+                              color: Colors.white,
+                            ),
+                            onPressed: () {
+                              showCupertinoModalPopup<void>(
+                                context: context,
+                                builder: (BuildContext context) {
+                                  return _buildBottomPicker(
+                                    CupertinoDatePicker(
+                                      initialDateTime: DateTime(2020, 4, 22, 12, 00),
+                                      minuteInterval: 30,
+                                      use24hFormat: true,
+                                      mode: CupertinoDatePickerMode.time,
+                                      onDateTimeChanged: (value) {
+                                        setState(() {
+                                          startTime = value;
+                                        });
+                                      },
+                                    ),
+                                  );
+                                },
+                              );
+                            }),
+                        Text(
+                          time == endTime
+                              ? 'FIM'
+                              : (endTime.hour.toString() +
+                                  ':' +
+                                  endTime.minute.toString()),
+                          style: TextStyle(color: Colors.white),
+                        ),
+                        IconButton(
+                          icon: Icon(
+                            Icons.watch_later,
+                            color: Colors.white,
+                          ),
+                          onPressed: () {
+                            showCupertinoModalPopup<void>(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return _buildBottomPicker(
+                                  CupertinoDatePicker(
+                                    initialDateTime: DateTime(2020, 4, 22, 12, 00),
+                                    minuteInterval: 30,
+                                    use24hFormat: true,
+                                    mode: CupertinoDatePickerMode.time,
+                                    onDateTimeChanged: (value) {
+                                      setState(() {
+                                        endTime = value;
+                                        timers = true;
+                                      });
+                                    },
+                                  ),
+                                );
+                              },
+                            );
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                  SizedBox(
+                    height: 10.0,
+                  ),
+                  Divider(
+                    color: Colors.white,
+                  ),
+                  Visibility(
+                    visible: timers == true ? true : false,
+                    child: Row(
+                      children: [
+                        Flexible(
+                          child: Text(
+                            'Permitir mais de um agendamento no mesmo horário?',
+                            style: TextStyle(fontSize: 20, color: Colors.white),
+                          ),
+                        ),
+                        Checkbox(
+                          value: check,
+                          activeColor: Colors.blueAccent,
+                          onChanged: (value) {
+                            setState(() {
+                              check = value;
+                            });
+                          },
+                        )
+                      ],
+                    ),
+                  )
+                ],
+              ),
             ),
           ],
         ),
@@ -454,6 +546,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
   }
 
   void saveCalendar(Map<String, dynamic> data) async {
+
     if (_formKey.currentState.validate()) {
       print('salvando calendário');
 

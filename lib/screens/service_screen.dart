@@ -210,7 +210,7 @@ class _ServiceScreenState extends State<ServiceScreen> with ServiceValidators {
                               fontSize: 20.0,),),
                           ),
                           DropdownButton<String>(
-                            value: snapshot.data['duration'],
+                            value: snapshot.data['duration'].toString(),
                             icon: Icon(Icons.timelapse, color: Colors.white,),
                             iconSize: 30,
                             elevation: 16,
