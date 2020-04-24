@@ -113,13 +113,15 @@ class _EditCalendarScreenState extends State<EditCalendarScreen> {
     );
   }
 
+  Color text () {
+    return Colors.black;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       key: _scaffoldKey,
-      backgroundColor: Colors.grey[850],
       appBar: AppBar(
-        backgroundColor: Colors.blueAccent,
         title: Text('Editar calendário'),
         actions: <Widget>[
           IconButton(
@@ -137,12 +139,12 @@ class _EditCalendarScreenState extends State<EditCalendarScreen> {
           children: <Widget>[
             TextFormField(
               controller: nameController,
-              style: TextStyle(color: Colors.white),
+              style: TextStyle(color: text()),
               decoration: InputDecoration(
                   labelText: 'Nome do calendário',
-                  labelStyle: TextStyle(color: Colors.white),
-                  fillColor: Colors.white,
-                  hoverColor: Colors.white),
+                  labelStyle: TextStyle(color: text()),
+                  fillColor: text(),
+                  hoverColor: text()),
             ),
             StreamBuilder<QuerySnapshot>(
               stream: Firestore.instance
@@ -171,7 +173,7 @@ class _EditCalendarScreenState extends State<EditCalendarScreen> {
                       Icon(
                         Icons.list,
                         size: 25.0,
-                        color: Colors.white,
+                        color: text(),
                       ),
                       SizedBox(
                         width: 50.0,
@@ -188,7 +190,7 @@ class _EditCalendarScreenState extends State<EditCalendarScreen> {
                         isExpanded: false,
                         hint: new Text(
                           'Escolha o serviço',
-                          style: TextStyle(color: Colors.white),
+                          style: TextStyle(color: text()),
                         ),
                       ),
                     ],
@@ -222,7 +224,7 @@ class _EditCalendarScreenState extends State<EditCalendarScreen> {
                       Icon(
                         Icons.person,
                         size: 25.0,
-                        color: Colors.white,
+                        color: text(),
                       ),
                       SizedBox(
                         width: 50.0,
@@ -238,7 +240,7 @@ class _EditCalendarScreenState extends State<EditCalendarScreen> {
                         isExpanded: false,
                         hint: new Text(
                           'Escolha o funcionário',
-                          style: TextStyle(color: Colors.white),
+                          style: TextStyle(color: text()),
                         ),
                       ),
                     ],
@@ -250,14 +252,14 @@ class _EditCalendarScreenState extends State<EditCalendarScreen> {
               height: 20.0,
             ),
             Divider(
-              color: Colors.white,
+              color: text(),
             ),
             SizedBox(
               height: 10.0,
             ),
             Text(
               'Dias da semana da Agenda',
-              style: TextStyle(color: Colors.white, fontSize: 20.0),
+              style: TextStyle(color: text(), fontSize: 20.0),
               textAlign: TextAlign.center,
             ),
             SizedBox(
@@ -270,31 +272,31 @@ class _EditCalendarScreenState extends State<EditCalendarScreen> {
                   children: <Widget>[
                     Text(
                       'SEG',
-                      style: TextStyle(color: Colors.white),
+                      style: TextStyle(color: text()),
                     ),
                     Text(
                       'TER',
-                      style: TextStyle(color: Colors.white),
+                      style: TextStyle(color: text()),
                     ),
                     Text(
                       'QUA',
-                      style: TextStyle(color: Colors.white),
+                      style: TextStyle(color: text()),
                     ),
                     Text(
                       'QUI',
-                      style: TextStyle(color: Colors.white),
+                      style: TextStyle(color: text()),
                     ),
                     Text(
                       'SEX',
-                      style: TextStyle(color: Colors.white),
+                      style: TextStyle(color: text()),
                     ),
                     Text(
                       'SAB',
-                      style: TextStyle(color: Colors.white),
+                      style: TextStyle(color: text()),
                     ),
                     Text(
                       'DOM',
-                      style: TextStyle(color: Colors.white),
+                      style: TextStyle(color: text()),
                     ),
                   ],
                 ),
@@ -304,7 +306,7 @@ class _EditCalendarScreenState extends State<EditCalendarScreen> {
                     Checkbox(
 //              title: Text(
 //                'SEG',
-//                style: TextStyle(color: Colors.white),
+//                style: TextStyle(color: text()),
 //              ),
                       activeColor: Colors.blueAccent,
                       onChanged: (bool resp) {
@@ -314,7 +316,7 @@ class _EditCalendarScreenState extends State<EditCalendarScreen> {
                         });
                       },
                       value: seg,
-                      checkColor: Colors.white,
+                      checkColor: text(),
                     ),
                     Checkbox(
                       activeColor: Colors.blueAccent,
@@ -325,7 +327,7 @@ class _EditCalendarScreenState extends State<EditCalendarScreen> {
                         });
                       },
                       value: ter,
-                      checkColor: Colors.white,
+                      checkColor: text(),
                     ),
                     Checkbox(
                       activeColor: Colors.blueAccent,
@@ -336,7 +338,7 @@ class _EditCalendarScreenState extends State<EditCalendarScreen> {
                         });
                       },
                       value: qua,
-                      checkColor: Colors.white,
+                      checkColor: text(),
                     ),
                     Checkbox(
                       activeColor: Colors.blueAccent,
@@ -347,7 +349,7 @@ class _EditCalendarScreenState extends State<EditCalendarScreen> {
                         });
                       },
                       value: qui,
-                      checkColor: Colors.white,
+                      checkColor: text(),
                     ),
                     Checkbox(
                       activeColor: Colors.blueAccent,
@@ -358,7 +360,7 @@ class _EditCalendarScreenState extends State<EditCalendarScreen> {
                         });
                       },
                       value: sex,
-                      checkColor: Colors.white,
+                      checkColor: text(),
                     ),
                     Checkbox(
                       activeColor: Colors.blueAccent,
@@ -369,7 +371,7 @@ class _EditCalendarScreenState extends State<EditCalendarScreen> {
                         });
                       },
                       value: sab,
-                      checkColor: Colors.white,
+                      checkColor: text(),
                     ),
                     Checkbox(
                       activeColor: Colors.blueAccent,
@@ -380,28 +382,28 @@ class _EditCalendarScreenState extends State<EditCalendarScreen> {
                         });
                       },
                       value: dom,
-                      checkColor: Colors.white,
+                      checkColor: text(),
                     ),
                   ],
                 ),
                 SizedBox(height: 45),
                 Divider(
-                  color: Colors.white,
+                  color: text(),
                 ),
                 Text(
                   'Horário de Funcionamento',
-                  style: TextStyle(color: Colors.white, fontSize: 20.0),
+                  style: TextStyle(color: text(), fontSize: 20.0),
                   textAlign: TextAlign.center,
                 ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: <Widget>[
                     lastStartTime != null ? Text('${lastStartTime.hour}:${lastStartTime.minute}',
-                        style: TextStyle(color: Colors.white)): Text('INÍCIO'),
+                        style: TextStyle(color: text())): Text('INÍCIO'),
                     IconButton(
                         icon: Icon(
                           Icons.access_time,
-                          color: Colors.white,
+                          color: text(),
                         ),
                         onPressed: () {
                           showCupertinoModalPopup<void>(
@@ -427,11 +429,11 @@ class _EditCalendarScreenState extends State<EditCalendarScreen> {
                           );
                         }),
                    lastEndTime != null ? Text('${lastEndTime.hour}:${lastEndTime.minute}',
-                        style: TextStyle(color: Colors.white)): Text('FIM'),
+                        style: TextStyle(color: text())): Text('FIM'),
                     IconButton(
                       icon: Icon(
                         Icons.timer,
-                        color: Colors.white,
+                        color: text(),
                       ),
                       onPressed: () {
                         showCupertinoModalPopup<void>(
@@ -462,14 +464,14 @@ class _EditCalendarScreenState extends State<EditCalendarScreen> {
                   height: 10.0,
                 ),
                 Divider(
-                  color: Colors.white,
+                  color: text(),
                 ),
                 Row(
                   children: [
                     Flexible(
                       child: Text(
                         'Permitir mais de um agendamento no mesmo horário?',
-                        style: TextStyle(fontSize: 20, color: Colors.white),
+                        style: TextStyle(fontSize: 20, color: text()),
                       ),
                     ),
                     Checkbox(
@@ -528,7 +530,7 @@ class _EditCalendarScreenState extends State<EditCalendarScreen> {
         _scaffoldKey.currentState.showSnackBar(SnackBar(
           content: Text(
             'Atualizando calendário...',
-            style: TextStyle(color: Colors.white),
+            style: TextStyle(color: text()),
           ),
           backgroundColor: Colors.orange,
           duration: Duration(minutes: 1),
@@ -549,7 +551,7 @@ class _EditCalendarScreenState extends State<EditCalendarScreen> {
         _scaffoldKey.currentState.showSnackBar(SnackBar(
           content: Text(
             'O horário de início deve ser anterior ao de final...',
-            style: TextStyle(color: Colors.white),
+            style: TextStyle(color: text()),
           ),
           backgroundColor: Colors.red,
           duration: Duration(minutes: 1),

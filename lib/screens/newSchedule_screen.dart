@@ -346,7 +346,6 @@ class _NewScheduleScreenState extends State<NewScheduleScreen> {
     return Scaffold(
       key: _scaffold,
       appBar: AppBar(
-        backgroundColor: Colors.blueAccent,
         title: Text('Novo agendamento'),
         actions: [
           IconButton(
@@ -369,7 +368,7 @@ class _NewScheduleScreenState extends State<NewScheduleScreen> {
           }
         },
         label: Text('Agendar'),
-        backgroundColor: Colors.blueAccent,
+        backgroundColor: Color.fromARGB(255, 15, 76, 129),
         icon: Icon(Icons.search),
       ),
       body: Container(

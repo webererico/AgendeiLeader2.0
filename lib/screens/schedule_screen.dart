@@ -38,11 +38,9 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey.withAlpha(850),
       appBar: AppBar(
         elevation: 1.0,
         title: serviceName == null ?  Text('') : Text(serviceName),
-        backgroundColor: Colors.blueAccent,
         actions: <Widget>[
           Padding(
             padding: const EdgeInsets.only(right: 20.0),

@@ -52,8 +52,6 @@ class _SchedulesTabState extends State<SchedulesTab> {
           length: 3,
           child: Scaffold(
             appBar: AppBar(
-
-              backgroundColor: Colors.blueAccent,
               title: companyName == null ? Text('') : Text(companyName),
               centerTitle: true,
               actions: [

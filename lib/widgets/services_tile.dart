@@ -14,7 +14,9 @@ class ServicesTile extends StatelessWidget {
     return Container(
       margin: EdgeInsets.symmetric(horizontal: 16.0, vertical: 4.0),
       child: Card(
+        elevation: 4,
         child: ExpansionTile(
+          initiallyExpanded: true,
           title: Text(
             services.data['name'],
             style:
@@ -53,7 +55,7 @@ class ServicesTile extends StatelessWidget {
                     color: Colors.white,
                   ),
                   label: Text('Histórico'),
-                  color: Colors.indigoAccent,
+                  color: Color.fromARGB(255, 15, 76, 129),
                 ),
               ],
             ),

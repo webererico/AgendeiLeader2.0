@@ -36,7 +36,7 @@ class _CalendarTabState extends State<CalendarTab>
   Widget build(BuildContext context) {
     super.build(context);
     return Scaffold(
-      backgroundColor: Colors.grey[850],
+
       body: StreamBuilder<QuerySnapshot>(
           stream: Firestore.instance
               .collection('companies')
@@ -51,6 +51,9 @@ class _CalendarTabState extends State<CalendarTab>
                 ),
               );
             } else {
+              if(snapshot.data.documents.length ==0){
+                return Center(child: Text('Você não possui agendas cadastradas'),);
+              }
               return ListView.builder(
                   itemCount: snapshot.data.documents.length,
                   itemBuilder: (context, index) {

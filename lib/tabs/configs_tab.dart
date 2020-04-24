@@ -57,7 +57,6 @@ class _ConfigsTabState extends State<ConfigsTab> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[850],
       appBar: CustomAppBar(company, calendars, clients, employees, services),
       body: StreamBuilder<DocumentSnapshot>(
         initialData: company,
@@ -73,14 +72,14 @@ class _ConfigsTabState extends State<ConfigsTab> {
                 ),
               );
             return Container(
-              color: Colors.grey[850],
+              
               padding: EdgeInsets.symmetric(horizontal: 20),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
                   Padding(padding: EdgeInsets.only(top: 10.0)),
                   RaisedButton(
-                    color: Colors.blueAccent,
+                    color: Color.fromARGB(255, 15, 76, 129),
                     elevation: 0.0,
                     onPressed: () {
                       print('informacoes da empresa');
@@ -112,7 +111,7 @@ class _ConfigsTabState extends State<ConfigsTab> {
                     ),
                   ),
                   RaisedButton(
-                    color: Colors.blueAccent,
+                    color: Color.fromARGB(255, 15, 76, 129),
                     elevation: 0.0,
                     onPressed: () {
                       print('relatorios');
@@ -136,7 +135,7 @@ class _ConfigsTabState extends State<ConfigsTab> {
                     ),
                   ),
                   RaisedButton(
-                    color: Colors.blueAccent,
+                    color: Color.fromARGB(255, 15, 76, 129),
                     elevation: 0.0,
                     onPressed: () {
                       print('meios de pagamento');
@@ -160,7 +159,7 @@ class _ConfigsTabState extends State<ConfigsTab> {
                     ),
                   ),
                   RaisedButton(
-                    color: Colors.blueAccent,
+                    color: Color.fromARGB(255, 15, 76, 129),
                     elevation: 0.0,
                     onPressed: () {
                       print('Reportar um bug');
@@ -185,7 +184,7 @@ class _ConfigsTabState extends State<ConfigsTab> {
                     ),
                   ),
                   RaisedButton(
-                    color: Colors.blueAccent,
+                    color: Color.fromARGB(255, 15, 76, 129),
                     elevation: 0.0,
                     onPressed: () {
                       print('sair do aplicativo');
@@ -239,7 +238,7 @@ class CustomAppBar extends StatelessWidget with PreferredSizeWidget {
       clipper: MyClipper(),
       child: Container(
         padding: EdgeInsets.only(top: 40),
-        decoration: BoxDecoration(color: Colors.blueAccent, boxShadow: [
+        decoration: BoxDecoration(color: Color.fromARGB(255, 15, 76, 129), boxShadow: [
           BoxShadow(color: Colors.black, blurRadius: 0, offset: Offset(0, 0))
         ]),
         child: Column(
@@ -272,7 +271,6 @@ class CustomAppBar extends StatelessWidget with PreferredSizeWidget {
                           shape: BoxShape.circle,
                           image: DecorationImage(
                             fit: BoxFit.cover,
-
                             image: company.data['img'] == null ? NetworkImage('https://firebasestorage.googleapis.com/v0/b/loja-f7ade.appspot.com/o/company.png?alt=media&token=549bdc9b-4c95-442c-a5d6-20b330171aab') : NetworkImage(company.data['img']) ,
                           )),
                     ),

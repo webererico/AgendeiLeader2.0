@@ -129,7 +129,6 @@ class _CalendarTabWidgetState extends State<CalendarTabWidget>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-//      backgroundColor: Colors.grey,
       body: Column(
         mainAxisSize: MainAxisSize.max,
         children: <Widget>[

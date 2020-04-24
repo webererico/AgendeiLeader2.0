@@ -37,7 +37,7 @@ class _HomeScreenState extends State<HomeScreen> {
       backgroundColor: Colors.grey[850],
       bottomNavigationBar: Theme(
         data: Theme.of(context).copyWith(
-            canvasColor: Colors.blueAccent,
+            canvasColor: Color.fromARGB(255, 15, 76, 129),
             primaryColor: Colors.white,
             textTheme: Theme.of(context)
                 .textTheme

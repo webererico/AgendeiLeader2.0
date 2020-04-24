@@ -52,7 +52,7 @@ class _ProfileScreenState extends State<ProfileScreen> with ProfileValidators {
     _scaffoldKey.currentState.showSnackBar(SnackBar(
       content: Text(
         'carregando imagem...',
-        style: TextStyle(color: Colors.white),
+        style: TextStyle(color: text()),
       ),
       backgroundColor: Colors.green,
       duration: Duration(minutes: 1),
@@ -111,7 +111,7 @@ class _ProfileScreenState extends State<ProfileScreen> with ProfileValidators {
           Navigator.of(context).pop();
           _scaffoldKey.currentState.showSnackBar(SnackBar(
             content: Text('senha fornecida está errada',
-                style: TextStyle(color: Colors.white)),
+                style: TextStyle(color: text())),
             backgroundColor: Colors.red,
           ));
         }
@@ -123,7 +123,7 @@ class _ProfileScreenState extends State<ProfileScreen> with ProfileValidators {
       _scaffoldKey.currentState.showSnackBar(
         SnackBar(
           content:
-              Text('Senha alterada', style: TextStyle(color: Colors.white)),
+              Text('Senha alterada', style: TextStyle(color: text())),
           backgroundColor: Colors.orange,
           duration: Duration(seconds: 4),
           onVisible: () {
@@ -208,6 +208,9 @@ class _ProfileScreenState extends State<ProfileScreen> with ProfileValidators {
     });
     super.initState();
   }
+  Color text(){
+    return Colors.black;
+  }
 
   final ProfileBloc _profileBloc;
   final _formkey = GlobalKey<FormState>();
@@ -220,7 +223,7 @@ class _ProfileScreenState extends State<ProfileScreen> with ProfileValidators {
   @override
   Widget build(BuildContext context) {
     final _fieldStyle = TextStyle(
-      color: Colors.white,
+      color: text(),
       fontSize: 16.0,
     );
 
@@ -233,9 +236,7 @@ class _ProfileScreenState extends State<ProfileScreen> with ProfileValidators {
 
     return Scaffold(
       key: _scaffoldKey,
-      backgroundColor: Colors.grey[850],
       appBar: AppBar(
-        backgroundColor: Colors.blueAccent,
         elevation: 0.0,
         title: Text('Editar perfil da empresa'),
         actions: <Widget>[
@@ -421,7 +422,7 @@ class _ProfileScreenState extends State<ProfileScreen> with ProfileValidators {
                           Icon(
                             Icons.category,
                             size: 25.0,
-                            color: Colors.white,
+                            color: text(),
                           ),
                           SizedBox(
                             width: 50.0,
@@ -436,13 +437,14 @@ class _ProfileScreenState extends State<ProfileScreen> with ProfileValidators {
                               _profileBloc.saveUidCategory(value);
                             },
                             value: selectedCategory,
-                            dropdownColor: Colors.blueAccent,
-                            focusColor: Colors.white,
-                            style: TextStyle(color: Colors.white),
+                            dropdownColor: Color.fromARGB(255, 15, 76, 129),
+                            focusColor: Colors.black,
+
+                            style: TextStyle(color: Colors.black),
                             isExpanded: false,
                             hint: Text(
                               'Escola a categoria',
-                              style: TextStyle(color: Colors.white),
+                              style: TextStyle(color: text()),
                             ),
                           ),
                         ],
@@ -461,7 +463,7 @@ class _ProfileScreenState extends State<ProfileScreen> with ProfileValidators {
                       FlatButton(
                         child: Text(
                           'redefinir senha',
-                          style: TextStyle(color: Colors.white),
+                          style: TextStyle(color: text()),
                         ),
                         onPressed: () {
                           newPassword();

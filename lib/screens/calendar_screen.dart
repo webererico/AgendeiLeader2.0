@@ -35,6 +35,9 @@ class _CalendarScreenState extends State<CalendarScreen> {
   DateTime endTime;
   TimeOfDay picked;
   double _kPickerSheetHeight = 300.0;
+  Color text (){
+    return Colors.black;
+  }
 
   @override
   void initState() {
@@ -57,25 +60,16 @@ class _CalendarScreenState extends State<CalendarScreen> {
       width: MediaQuery.of(context).size.width,
       height: _kPickerSheetHeight,
       padding: const EdgeInsets.only(top: 6.0),
-      color: CupertinoColors.white,
+      color: Colors.white,
       child: Column(
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               FlatButton(
-                child: Text(
-                  'cancelar',
-                  style: TextStyle(color: Colors.red),
-                ),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-              ),
-              FlatButton(
                   textColor: Colors.blueAccent,
                   child: Text(
-                    'confirmar',
+                    'OK',
                   ),
                   onPressed: () {
                     Navigator.of(context).pop();
@@ -94,11 +88,10 @@ class _CalendarScreenState extends State<CalendarScreen> {
 
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
       key: _scaffoldKey,
-      backgroundColor: Colors.grey[850],
       appBar: AppBar(
-        backgroundColor: Colors.blueAccent,
         title: Text('Criar novo calendário'),
         actions: <Widget>[
           endTime != null ? IconButton(
@@ -133,13 +126,13 @@ class _CalendarScreenState extends State<CalendarScreen> {
           padding: EdgeInsets.all(10.0),
           children: <Widget>[
             TextFormField(
-              style: TextStyle(color: Colors.white),
+              style: TextStyle(color: text()),
               controller: _nameController,
               decoration: InputDecoration(
                   labelText: 'Nome do calendário',
-                  labelStyle: TextStyle(color: Colors.white),
-                  fillColor: Colors.white,
-                  hoverColor: Colors.white),
+                  labelStyle: TextStyle(color: text()),
+                  fillColor: text(),
+                  hoverColor: text()),
               onChanged: (value){
                 _nameController.text = value;
                 name = true;
@@ -176,7 +169,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                             Icon(
                               Icons.list,
                               size: 25.0,
-                              color: Colors.white,
+                              color: text(),
                             ),
                             SizedBox(
                               width: 50.0,
@@ -194,7 +187,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                               isExpanded: false,
                               hint: new Text(
                                 'Escolha o serviço',
-                                style: TextStyle(color: Colors.white),
+                                style: TextStyle(color: text()),
                               ),
                             ),
                           ],
@@ -205,7 +198,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                   IconButton(
                       icon: Icon(
                         Icons.control_point,
-                        color: Colors.white,
+                        color: text(),
                       ),
                       onPressed: () {}),
                 ],
@@ -242,7 +235,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                             Icon(
                               Icons.person,
                               size: 25.0,
-                              color: Colors.white,
+                              color: text(),
                             ),
                             SizedBox(
                               width: 50.0,
@@ -256,11 +249,11 @@ class _CalendarScreenState extends State<CalendarScreen> {
                                 });
                               },
                               value: selectedEmployee,
-//                            style: TextStyle(color: Colors.white),
+//                            style: TextStyle(color: text()),
                               isExpanded: false,
                               hint: new Text(
                                 '       Escolha o funcionário',
-                                style: TextStyle(color: Colors.white),
+                                style: TextStyle(color: text()),
                               ),
                             ),
                           ],
@@ -275,7 +268,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
               height: 20.0,
             ),
             Divider(
-              color: Colors.white,
+              color: text(),
             ),
             SizedBox(
               height: 10.0,
@@ -284,7 +277,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
               visible: employee == true ? true : false,
               child: Text(
                 'Dias da semana da Agenda',
-                style: TextStyle(color: Colors.white, fontSize: 20.0),
+                style: TextStyle(color: text(), fontSize: 20.0),
                 textAlign: TextAlign.center,
               ),
             ),
@@ -300,31 +293,31 @@ class _CalendarScreenState extends State<CalendarScreen> {
                     children: <Widget>[
                       Text(
                         'SEG',
-                        style: TextStyle(color: Colors.white),
+                        style: TextStyle(color: text()),
                       ),
                       Text(
                         'TER',
-                        style: TextStyle(color: Colors.white),
+                        style: TextStyle(color: text()),
                       ),
                       Text(
                         'QUA',
-                        style: TextStyle(color: Colors.white),
+                        style: TextStyle(color: text()),
                       ),
                       Text(
                         'QUI',
-                        style: TextStyle(color: Colors.white),
+                        style: TextStyle(color: text()),
                       ),
                       Text(
                         'SEX',
-                        style: TextStyle(color: Colors.white),
+                        style: TextStyle(color: text()),
                       ),
                       Text(
                         'SAB',
-                        style: TextStyle(color: Colors.white),
+                        style: TextStyle(color: text()),
                       ),
                       Text(
                         'DOM',
-                        style: TextStyle(color: Colors.white),
+                        style: TextStyle(color: text()),
                       ),
                     ],
                   ),
@@ -341,7 +334,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                           });
                         },
                         value: seg,
-                        checkColor: Colors.white,
+                        checkColor: text(),
                       ),
                       Checkbox(
                         activeColor: Colors.blueAccent,
@@ -353,7 +346,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                           });
                         },
                         value: ter,
-                        checkColor: Colors.white,
+                        checkColor: text(),
                       ),
                       Checkbox(
                         activeColor: Colors.blueAccent,
@@ -365,7 +358,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                           });
                         },
                         value: qua,
-                        checkColor: Colors.white,
+                        checkColor: text(),
                       ),
                       Checkbox(
                         activeColor: Colors.blueAccent,
@@ -377,7 +370,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                           });
                         },
                         value: qui,
-                        checkColor: Colors.white,
+                        checkColor: text(),
                       ),
                       Checkbox(
                         activeColor: Colors.blueAccent,
@@ -389,7 +382,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                           });
                         },
                         value: sex,
-                        checkColor: Colors.white,
+                        checkColor: text(),
                       ),
                       Checkbox(
                         activeColor: Colors.blueAccent,
@@ -401,7 +394,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                           });
                         },
                         value: sab,
-                        checkColor: Colors.white,
+                        checkColor: text(),
                       ),
                       Checkbox(
                         activeColor: Colors.blueAccent,
@@ -413,7 +406,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                           });
                         },
                         value: dom,
-                        checkColor: Colors.white,
+                        checkColor: text(),
                       ),
                     ],
                   ),
@@ -421,14 +414,14 @@ class _CalendarScreenState extends State<CalendarScreen> {
                   Visibility(
                     visible:  day == true? true : false,
                     child: Divider(
-                      color: Colors.white,
+                      color: text(),
                     ),
                   ),
                   Visibility(
                     visible: day == true ? true : false,
                     child: Text(
                       'Horário de Funcionamento',
-                      style: TextStyle(color: Colors.white, fontSize: 20.0),
+                      style: TextStyle(color: text(), fontSize: 20.0),
                       textAlign: TextAlign.center,
                     ),
                   ),
@@ -443,12 +436,12 @@ class _CalendarScreenState extends State<CalendarScreen> {
                               : (startTime.hour.toString() +
                                   ':' +
                                   startTime.minute.toString()),
-                          style: TextStyle(color: Colors.white),
+                          style: TextStyle(color: text()),
                         ),
                         IconButton(
                             icon: Icon(
                               Icons.access_time,
-                              color: Colors.white,
+                              color: text(),
                             ),
                             onPressed: () {
                               showCupertinoModalPopup<void>(
@@ -476,12 +469,12 @@ class _CalendarScreenState extends State<CalendarScreen> {
                               : (endTime.hour.toString() +
                                   ':' +
                                   endTime.minute.toString()),
-                          style: TextStyle(color: Colors.white),
+                          style: TextStyle(color: text()),
                         ),
                         IconButton(
                           icon: Icon(
                             Icons.watch_later,
-                            color: Colors.white,
+                            color: text(),
                           ),
                           onPressed: () {
                             showCupertinoModalPopup<void>(
@@ -512,7 +505,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                     height: 10.0,
                   ),
                   Divider(
-                    color: Colors.white,
+                    color: text(),
                   ),
                   Visibility(
                     visible: timers == true ? true : false,
@@ -521,7 +514,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                         Flexible(
                           child: Text(
                             'Permitir mais de um agendamento no mesmo horário?',
-                            style: TextStyle(fontSize: 20, color: Colors.white),
+                            style: TextStyle(fontSize: 20, color: text()),
                           ),
                         ),
                         Checkbox(
@@ -554,7 +547,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
         _scaffoldKey.currentState.showSnackBar(SnackBar(
           content: Text(
             'Criando novo calendário da empresa...',
-            style: TextStyle(color: Colors.white),
+            style: TextStyle(color: Colors.black),
           ),
           backgroundColor: Colors.blueAccent,
           duration: Duration(minutes: 1),

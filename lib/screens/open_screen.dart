@@ -10,8 +10,8 @@ class OpenScreen extends StatefulWidget {
 }
 
 class _OpenScreenState extends State<OpenScreen> {
-  final Color _cor1 = Color.fromARGB(255, 87, 39, 239);
-  final Color _cor2 = Color.fromARGB(140, 66, 90, 242);
+  final Color _cor1 = Color.fromARGB(255, 15, 76, 129);
+  final Color _cor2 = Color.fromARGB(200, 15, 76, 129);
 
   @override
   void initState() {
@@ -42,15 +42,7 @@ class _OpenScreenState extends State<OpenScreen> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: <Widget>[
-                      CircleAvatar(
-                        backgroundColor: Colors.white,
-                        radius: 50.0,
-                        child: Icon(
-                          Icons.calendar_today,
-                          color: Colors.greenAccent,
-                          size: 50.0,
-                        ),
-                      ),
+                      Image.asset('lib/images/logo.png'),
                       Padding(
                         padding: EdgeInsets.only(top: 10.0),
                       ),

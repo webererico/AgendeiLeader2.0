@@ -58,6 +58,7 @@ class CalendarsTile extends StatelessWidget {
     return Padding(
         padding: EdgeInsets.all(7.0),
         child: Card(
+          elevation: 7,
           child: Column(
             children: <Widget>[
               ListTile(

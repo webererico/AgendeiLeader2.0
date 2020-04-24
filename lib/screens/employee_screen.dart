@@ -89,19 +89,20 @@ class _EmployState extends State<EmployeeScreen> with EmployeeValidators {
             employee: employee,
             uidCompany: uidCompany);
 
+  Color text(){
+    return Colors.black;
+  }
+
   @override
   Widget build(BuildContext context) {
     final _fieldStyle = TextStyle(color: Colors.white, fontSize: 16.0);
     InputDecoration _buildDecoration(String label) {
       return InputDecoration(
-          labelText: label, labelStyle: TextStyle(color: Colors.grey));
+          labelText: label, labelStyle: TextStyle(color: text()));
     }
-
     return Scaffold(
       key: _scaffoldKey,
-      backgroundColor: Colors.grey[850],
       appBar: AppBar(
-        backgroundColor: Colors.blueAccent,
         elevation: 0.0,
         title: StreamBuilder(
             stream: _employeeBloc.outCreated,
@@ -190,7 +191,7 @@ class _EmployState extends State<EmployeeScreen> with EmployeeValidators {
             return FloatingActionButton(
               onPressed: snapshot.data ? null : saveEmployee,
               tooltip: 'Salvar',
-              backgroundColor: Colors.blueAccent,
+              backgroundColor: Color.fromARGB(255, 15, 76, 129),
               child: Icon(Icons.save),
             );
           }),
@@ -217,7 +218,7 @@ class _EmployState extends State<EmployeeScreen> with EmployeeValidators {
                                 child: IconButton(
                                   icon: Icon(
                                     Icons.photo_camera,
-                                    color: Colors.blueAccent,
+                                    color: Color.fromARGB(255, 15, 76, 129),
                                   ),
                                   onPressed: () {
                                     print('tirar foto');
@@ -290,7 +291,7 @@ class _EmployState extends State<EmployeeScreen> with EmployeeValidators {
                         validator: validateBirth,
                       ),
                       DropdownButton(
-//                      style: _fieldStyle,
+//                        style: _fieldStyle,
                         items: <String>['Masculino', 'Feminino'].map((String value) {
                           return new DropdownMenuItem<String>(
                             value: value,

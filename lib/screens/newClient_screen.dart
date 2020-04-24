@@ -251,7 +251,7 @@ class _NewClientScreenState extends State<NewClientScreen> {
       ),
       floatingActionButton: FloatingActionButton.extended(
           label: Text('Criar cliente'),
-          backgroundColor: Colors.blueAccent,
+          backgroundColor: Color.fromARGB(255, 15, 76, 129),
           icon: Icon(Icons.arrow_forward),
           onPressed: () {
             if (_formKey.currentState.validate()) {

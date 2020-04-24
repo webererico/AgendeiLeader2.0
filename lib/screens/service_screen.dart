@@ -48,20 +48,20 @@ class _ServiceScreenState extends State<ServiceScreen> with ServiceValidators {
 
   @override
   Widget build(BuildContext context) {
+    Color text(){
+      return Colors.black;
+    }
     final _fieldStyle = TextStyle(
-      color: Colors.white,
+      color: text(),
       fontSize: 20.0,
     );
     InputDecoration _buildDecoration(String label) {
       return InputDecoration(
-          labelText: label, labelStyle: TextStyle(color: Colors.white, fontSize: 20.0));
+          labelText: label, labelStyle: TextStyle(color: text(), fontSize: 20.0));
     }
-
     return Scaffold(
       key: _scaffoldKey,
-      backgroundColor: Colors.grey[850],
       appBar: AppBar(
-        backgroundColor: Colors.blueAccent,
         elevation: 0.0,
         title: StreamBuilder(
           stream: _serviceBloc.outCreated,
@@ -206,12 +206,12 @@ class _ServiceScreenState extends State<ServiceScreen> with ServiceValidators {
                       Row(
                         children: [
                           Flexible(
-                            child: Text('Tempo médio de duração (minutos)',style: TextStyle(color: Colors.white,
+                            child: Text('Tempo médio de duração (minutos)',style: TextStyle(color: text(),
                               fontSize: 20.0,),),
                           ),
                           DropdownButton<String>(
                             value: snapshot.data['duration'].toString(),
-                            icon: Icon(Icons.timelapse, color: Colors.white,),
+                            icon: Icon(Icons.timelapse, color: text(),),
                             iconSize: 30,
                             elevation: 16,
                             style: TextStyle(color: Colors.blueAccent),

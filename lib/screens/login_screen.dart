@@ -74,7 +74,7 @@ class _LoginScreen extends State<LoginScreen> {
       key: _scaffoldKey,
       resizeToAvoidBottomPadding: true,
       resizeToAvoidBottomInset: true,
-      backgroundColor: Colors.grey[850],
+      backgroundColor: Color.fromARGB(255, 15, 76, 129),
       body: StreamBuilder<LoginState>(
           stream: _loginBloc.outState,
           initialData: LoginState.LOADING,
@@ -99,14 +99,10 @@ class _LoginScreen extends State<LoginScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: <Widget>[
-                            Icon(
-                              Icons.calendar_today,
-                              color: Colors.blueAccent,
-                              size: 140,
-                            ),
+                           Image.asset('lib/images/logo_thin.png'),
                             Center(
                               child: Text(
-                                'Agendei Leader',
+                                'Gerenciamento',
                                 style: TextStyle(
                                     color: Colors.white, fontSize: 32.0),
                               ),

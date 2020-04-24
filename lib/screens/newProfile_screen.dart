@@ -70,11 +70,93 @@ class _NewProfileState extends State<NewProfile> {
   Widget build(BuildContext context) {
     return Scaffold(
       key: _scaffoldKey,
-      backgroundColor: Colors.white,
       appBar: AppBar(
-        backgroundColor: Colors.blueAccent,
         elevation: 0.0,
         title: Text('Perfil da Empresa'),
+        actions: [
+          IconButton(
+              icon: Icon(Icons.arrow_forward),
+              onPressed: (){
+                if (_formKey.currentState.validate()) {
+                  if (_passController.text == _rePassController.text) {
+                    Map<String, dynamic> userData = {
+                      'name': _nameController.text,
+                      'email': _emailController.text,
+                      'adress': _adressController.text,
+                      'phone': _phoneController.text,
+                      'cnpj': _cnpjController.text,
+                      'cpfBoss': _cpfBossController.text,
+                      'fullNameBoss': _nameBossController.text,
+                      'uidCategory': selectedCategory,
+                      'img': _uploadedFileURL,
+                    };
+                    if (_uploadedFileURL == null) {
+                      print('imagem inválida');
+                      showDialog<void>(
+                          context: context,
+                          barrierDismissible: false, // user must tap button!
+                          builder: (BuildContext context) {
+                            return AlertDialog(
+                              title: Text(
+                                  'Sua empresa não possue logo ou imagem de pefil'),
+                              content: Text(
+                                  'Caso você não forneça uma imagem de perfil ou sua logo iremos colocar uma imagem padrão da empresa'),
+                              actions: <Widget>[
+                                FlatButton(
+                                  onPressed: () {
+                                    saveProfile(userData, selectedCategory);
+                                    Navigator.of(context).pop();
+                                  },
+                                  child: Text('Concordar'),
+                                ),
+                                FlatButton(
+                                  onPressed: () {
+                                    Navigator.of(context).pop();
+                                  },
+                                  child: Text('Voltar e escolher imagem.'),
+                                ),
+                              ],
+                            );
+                          });
+                    } else if (selectedCategory == null) {
+                      print('categoria inválida');
+                      showDialog<void>(
+                          context: context,
+                          barrierDismissible: false, // user must tap button!
+                          builder: (BuildContext context) {
+                            return AlertDialog(
+                              title: Text(
+                                  'Sua empresa não possue uma categoria'),
+                              content: Text(
+                                  'Caso a sua empresa não se encaixe em uma destas categorias, entre em contato conosco por (55) 991344031'),
+                              actions: <Widget>[
+                                FlatButton(
+                                  onPressed: () {
+                                    Navigator.of(context).pop();
+                                  },
+                                  child: Text('Ok'),
+                                ),
+                              ],
+                            );
+                          });
+                    } else {
+                      print(userData);
+                      saveProfile(userData, selectedCategory);
+                      _loginBloc.submit(
+                          email: userData['email'],
+                          pass: _passController.text);
+                    }
+                  } else {
+                    _scaffoldKey.currentState.showSnackBar(SnackBar(
+                      content: Text('As senhas não são iguais'),
+                      backgroundColor: Colors.red,
+                      duration: Duration(seconds: 2),
+                    ));
+                  }
+                }
+              }
+          )
+        ],
       ),
       body: Form(
         key: _formKey,
@@ -98,7 +180,7 @@ class _NewProfileState extends State<NewProfile> {
                               child: IconButton(
                                 icon: Icon(
                                   Icons.photo_camera,
-                                  color: Colors.blueAccent,
+                                  color: Color.fromARGB(255, 15, 76, 129),
                                 ),
                                 onPressed: () {
                                   print('tirar foto');
@@ -305,131 +387,131 @@ class _NewProfileState extends State<NewProfile> {
                 }
               },
             ),
-            SizedBox(
-              height: 44.0,
-              child: RaisedButton(
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: <Widget>[
-                    Text(
-                      "Criar conta e avançar",
-                      style: TextStyle(fontSize: 18.0),
-                    ),
-                    Icon(Icons.chevron_right)
-                  ],
-                ),
-                textColor: Colors.white,
-                color: Colors.blueAccent,
-                onPressed: () {
-                  if (_formKey.currentState.validate()) {
-                    if (_passController.text == _rePassController.text) {
-                      Map<String, dynamic> userData = {
-                        'name': _nameController.text,
-                        'email': _emailController.text,
-                        'adress': _adressController.text,
-                        'phone': _phoneController.text,
-                        'cnpj': _cnpjController.text,
-                        'cpfBoss': _cpfBossController.text,
-                        'fullNameBoss': _nameBossController.text,
-                        'uidCategory': selectedCategory,
-                        'img': _uploadedFileURL,
-                      };
-                      if (_uploadedFileURL == null) {
-                        print('imagem inválida');
-                        showDialog<void>(
-                            context: context,
-                            barrierDismissible: false, // user must tap button!
-                            builder: (BuildContext context) {
-                              return AlertDialog(
-                                title: Text(
-                                    'Sua empresa não possue logo ou imagem de pefil'),
-                                content: Text(
-                                    'Caso você não forneça uma imagem de perfil ou sua logo iremos colocar uma imagem padrão da empresa'),
-                                actions: <Widget>[
-                                  FlatButton(
-                                    onPressed: () {
-                                      Navigator.of(context).pop();
-                                      if (selectedCategory == null) {
-                                        print('categoria inválida');
-                                        showDialog<void>(
-                                            context: context,
-                                            barrierDismissible: false,
-                                            // user must tap button!
-                                            builder: (BuildContext context) {
-                                              return AlertDialog(
-                                                title: Text(
-                                                    'Sua empresa não possue uma categoria'),
-                                                content: Text(
-                                                    'Caso a sua empresa não se encaixe em uma destas categorias, entre em contato conosco por (55) 991344031'),
-                                                actions: <Widget>[
-                                                  FlatButton(
-                                                    onPressed: () {
-                                                      Navigator.of(context)
-                                                          .pop();
-                                                    },
-                                                    child: Text('Ok'),
-                                                  ),
-                                                ],
-                                              );
-                                            });
-                                      } else {
-                                        print(userData);
-                                        saveProfile(userData, selectedCategory);
-                                        _loginBloc.submit(
-                                            email: userData['email'],
-                                            pass: _passController.text);
-                                      }
-                                    },
-                                    child: Text('Concordar'),
-                                  ),
-                                  FlatButton(
-                                    onPressed: () {
-                                      Navigator.of(context).pop();
-                                    },
-                                    child: Text('Voltar e escolher imagem.'),
-                                  ),
-                                ],
-                              );
-                            });
-                      } else if (selectedCategory == null) {
-                        print('categoria inválida');
-                        showDialog<void>(
-                            context: context,
-                            barrierDismissible: false, // user must tap button!
-                            builder: (BuildContext context) {
-                              return AlertDialog(
-                                title: Text(
-                                    'Sua empresa não possue uma categoria'),
-                                content: Text(
-                                    'Caso a sua empresa não se encaixe em uma destas categorias, entre em contato conosco por (55) 991344031'),
-                                actions: <Widget>[
-                                  FlatButton(
-                                    onPressed: () {
-                                      Navigator.of(context).pop();
-                                    },
-                                    child: Text('Ok'),
-                                  ),
-                                ],
-                              );
-                            });
-                      } else {
-                        print(userData);
-                        saveProfile(userData, selectedCategory);
-                        _loginBloc.submit(
-                            email: userData['email'],
-                            pass: _passController.text);
-                      }
-                    } else {
-                      _scaffoldKey.currentState.showSnackBar(SnackBar(
-                        content: Text('As senhas não são iguais'),
-                        backgroundColor: Colors.red,
-                        duration: Duration(seconds: 2),
-                      ));
-                    }
-                  }
-                },
-              ),
-            ),
+//            SizedBox(
+//              height: 44.0,
+//              child: RaisedButton(
+//                child: Row(
+//                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+//                  children: <Widget>[
+//                    Text(
+//                      "Criar conta e avançar",
+//                      style: TextStyle(fontSize: 18.0),
+//                    ),
+//                    Icon(Icons.chevron_right)
+//                  ],
+//                ),
+//                textColor: Colors.white,
+//                color: Colors.blueAccent,
+//                onPressed: () {
+//                  if (_formKey.currentState.validate()) {
+//                    if (_passController.text == _rePassController.text) {
+//                      Map<String, dynamic> userData = {
+//                        'name': _nameController.text,
+//                        'email': _emailController.text,
+//                        'adress': _adressController.text,
+//                        'phone': _phoneController.text,
+//                        'cnpj': _cnpjController.text,
+//                        'cpfBoss': _cpfBossController.text,
+//                        'fullNameBoss': _nameBossController.text,
+//                        'uidCategory': selectedCategory,
+//                        'img': _uploadedFileURL,
+//                      };
+//                      if (_uploadedFileURL == null) {
+//                        print('imagem inválida');
+//                        showDialog<void>(
+//                            context: context,
+//                            barrierDismissible: false, // user must tap button!
+//                            builder: (BuildContext context) {
+//                              return AlertDialog(
+//                                title: Text(
+//                                    'Sua empresa não possue logo ou imagem de pefil'),
+//                                content: Text(
+//                                    'Caso você não forneça uma imagem de perfil ou sua logo iremos colocar uma imagem padrão da empresa'),
+//                                actions: <Widget>[
+//                                  FlatButton(
+//                                    onPressed: () {
+//                                      Navigator.of(context).pop();
+//                                      if (selectedCategory == null) {
+//                                        print('categoria inválida');
+//                                        showDialog<void>(
+//                                            context: context,
+//                                            barrierDismissible: false,
+//                                            // user must tap button!
+//                                            builder: (BuildContext context) {
+//                                              return AlertDialog(
+//                                                title: Text(
+//                                                    'Sua empresa não possue uma categoria'),
+//                                                content: Text(
+//                                                    'Caso a sua empresa não se encaixe em uma destas categorias, entre em contato conosco por (55) 991344031'),
+//                                                actions: <Widget>[
+//                                                  FlatButton(
+//                                                    onPressed: () {
+//                                                      Navigator.of(context)
+//                                                          .pop();
+//                                                    },
+//                                                    child: Text('Ok'),
+//                                                  ),
+//                                                ],
+//                                              );
+//                                            });
+//                                      } else {
+//                                        print(userData);
+//                                        saveProfile(userData, selectedCategory);
+//                                        _loginBloc.submit(
+//                                            email: userData['email'],
+//                                            pass: _passController.text);
+//                                      }
+//                                    },
+//                                    child: Text('Concordar'),
+//                                  ),
+//                                  FlatButton(
+//                                    onPressed: () {
+//                                      Navigator.of(context).pop();
+//                                    },
+//                                    child: Text('Voltar e escolher imagem.'),
+//                                  ),
+//                                ],
+//                              );
+//                            });
+//                      } else if (selectedCategory == null) {
+//                        print('categoria inválida');
+//                        showDialog<void>(
+//                            context: context,
+//                            barrierDismissible: false, // user must tap button!
+//                            builder: (BuildContext context) {
+//                              return AlertDialog(
+//                                title: Text(
+//                                    'Sua empresa não possue uma categoria'),
+//                                content: Text(
+//                                    'Caso a sua empresa não se encaixe em uma destas categorias, entre em contato conosco por (55) 991344031'),
+//                                actions: <Widget>[
+//                                  FlatButton(
+//                                    onPressed: () {
+//                                      Navigator.of(context).pop();
+//                                    },
+//                                    child: Text('Ok'),
+//                                  ),
+//                                ],
+//                              );
+//                            });
+//                      } else {
+//                        print(userData);
+//                        saveProfile(userData, selectedCategory);
+//                        _loginBloc.submit(
+//                            email: userData['email'],
+//                            pass: _passController.text);
+//                      }
+//                    } else {
+//                      _scaffoldKey.currentState.showSnackBar(SnackBar(
+//                        content: Text('As senhas não são iguais'),
+//                        backgroundColor: Colors.red,
+//                        duration: Duration(seconds: 2),
+//                      ));
+//                    }
+//                  }
+//                },
+//              ),
+//            ),
           ],
         ),
       ),
