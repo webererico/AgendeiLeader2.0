@@ -95,7 +95,7 @@ class _EmployState extends State<EmployeeScreen> with EmployeeValidators {
 
   @override
   Widget build(BuildContext context) {
-    final _fieldStyle = TextStyle(color: Colors.white, fontSize: 16.0);
+    final _fieldStyle = TextStyle(color: text(), fontSize: 16.0);
     InputDecoration _buildDecoration(String label) {
       return InputDecoration(
           labelText: label, labelStyle: TextStyle(color: text()));

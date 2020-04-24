@@ -1,7 +1,8 @@
 import 'dart:async';
 import 'package:agendei/screens/home_screen.dart';
+import 'package:agendei/screens/login_screen.dart';
 import 'package:flutter/material.dart';
-
+import 'package:firebase_auth/firebase_auth.dart';
 
 
 class OpenScreen extends StatefulWidget {
@@ -11,12 +12,37 @@ class OpenScreen extends StatefulWidget {
 
 class _OpenScreenState extends State<OpenScreen> {
   final Color _cor1 = Color.fromARGB(255, 15, 76, 129);
-  final Color _cor2 = Color.fromARGB(200, 15, 76, 129);
+  final Color _cor2 = Color.fromARGB(255, 15, 76, 129);
+  bool userLog;
+  getUID() async {
+    final FirebaseUser user = await FirebaseAuth.instance.currentUser();
+    if(user != null){
+      setState(() {
+        userLog = true;
+        return true;
+      });
+    }else{
+      return false;
+      userLog = false;
+    }
+
+//    return uidCompany;
+  }
+
 
   @override
   void initState() {
     super.initState();
+    getUID().then((result){
+      userLog = result;
+    });
+    print('usuario logado? '+userLog.toString());
+    if(userLog == true){
     Timer(Duration(seconds: 3), () => Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context)=>HomeScreen())));
+    }else{
+      Timer(Duration(seconds: 3), () => Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context)=>LoginScreen())));
+    }
+
   }
 
   @override
