@@ -12,33 +12,28 @@ class OpenScreen extends StatefulWidget {
 
 class _OpenScreenState extends State<OpenScreen> {
   final Color _cor1 = Color.fromARGB(255, 15, 76, 129);
-  final Color _cor2 = Color.fromARGB(255, 15, 76, 129);
-  bool userLog;
+  final Color _cor2 = Color.fromARGB(200, 15, 76, 129);
+  String uidCompany;
+
   getUID() async {
     final FirebaseUser user = await FirebaseAuth.instance.currentUser();
-    if(user != null){
-      setState(() {
-        userLog = true;
-        return true;
-      });
+    if(user == null){
+      return null;
     }else{
-      return false;
-      userLog = false;
+      final uidCompany = user.uid.toString();
+      return uidCompany;
     }
 
-//    return uidCompany;
   }
-
 
   @override
   void initState() {
     super.initState();
     getUID().then((result){
-      userLog = result;
+      uidCompany = result;
     });
-    print('usuario logado? '+userLog.toString());
-    if(userLog == true){
-    Timer(Duration(seconds: 3), () => Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context)=>HomeScreen())));
+    if(uidCompany !=null){
+      Timer(Duration(seconds: 3), () => Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context)=>HomeScreen())));
     }else{
       Timer(Duration(seconds: 3), () => Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context)=>LoginScreen())));
     }
